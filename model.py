@@ -28,9 +28,24 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit() 
 
+    def check_econtact(self, econtact):
+        contacts = [name.e_name for name in self.e_contacts]
+        return econtact in contacts 
+
+    def add_econtact(self, name):
+        econtact = E_Contact(e_name=e_name)
+        self.e_contacts.append(econtact)
+        
+        db.session.add(self)
+        db.session.commit()
+
+    def add_activity(self, details, time):
+        activity = Activity(details=details, time=time)
+
+
     def __repr__(self):
 
-        return f"<User= {self.name} id={self.user_id} >"
+        return f"<User={self.name}, id={self.user_id} >"
 
 
 class User_Phone(db.Model):
@@ -47,7 +62,7 @@ class User_Phone(db.Model):
 
     def __repr__(self):
 
-        return f"<Phone= {self.number} id={self.phone_id} user_id={self.user_id}>"
+        return f"<Phone={self.number}, id={self.phone_id}, user_id={self.user_id}>"
 
 
 class E_Contact(db.Model):
@@ -62,9 +77,20 @@ class E_Contact(db.Model):
     user = db.relationship("User",
                             backref="e_contacts")
 
+    def check_ephone(self, e_number):
+        numbers = [ephone.e_number for ephone in self.e_phones]
+        return e_number in numbers
+
+    def add_enumber(self, e_number):
+        phone = E_Phone(e_number=e_number)
+        self.e_phones.append(phone)
+
+        db.session.add(self)
+        db.session.commit() 
+
     def __repr__(self):
 
-        return f"<ICE= {self.e_name} id={self.e_id} user_id={self.user_id}>"
+        return f"<ICE={self.e_name}, id={self.e_id}, user_id={self.user_id}>"
 
 
 class E_Phone(db.Model):
@@ -81,7 +107,7 @@ class E_Phone(db.Model):
 
     def __repr__(self):
 
-        return f"<EPhone={self.e_number} id={self.ephone_id} e_id={self.e_id}>"
+        return f"<EPhone={self.e_number}, id={self.ephone_id}, e_id={self.e_id}>"
 
 class Activity(db.Model):
     """User's activities. """
@@ -99,7 +125,7 @@ class Activity(db.Model):
 
     def __repr__(self):
 
-        return f"<Activity = {self.details} user_id={self.user_id}>"
+        return f"<Activity={self.details}, user_id={self.user_id}>"
 
 
 
