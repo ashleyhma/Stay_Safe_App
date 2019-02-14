@@ -32,7 +32,7 @@ class User(db.Model):
         contacts = [name.e_name for name in self.e_contacts]
         return econtact in contacts 
 
-    def add_econtact(self, name):
+    def add_econtact(self, e_name):
         econtact = E_Contact(e_name=e_name)
         self.e_contacts.append(econtact)
         
@@ -41,6 +41,10 @@ class User(db.Model):
 
     def add_activity(self, details, time):
         activity = Activity(details=details, time=time)
+        self.activities.append(activity)
+
+        db.session.add(self)
+        db.session.commit()
 
 
     def __repr__(self):

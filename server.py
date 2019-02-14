@@ -18,72 +18,149 @@ app.jinja_env.undefined = StrictUndefined
 
 @app.route('/', methods=["GET"])
 def homepage():
-    """Homepage"""
+    """Show homepage with form for user's name and number. If user is already stored
+        in session, redirect to some-form"""
 
+    #If there is a session, redirect to some-form
+    if 'user_id' in session:
+        return redirect('/some-form')
+ 
+    #Else show homepage
     return render_template("homepage.html")
 
 
 @app.route('/', methods=["POST"])
-def save_form_data():
-    """Saving input form data into database."""
+def save_name_num():
+    """Saving name and num info into database. 
+        If name and num already in db, redirect to 'some-form'
+        else redirect to 'form'
+        add to session. """
 
-
+    #Grabs data from input form
     name = request.form.get("name")
     number = request.form.get("number")
 
-    user = User.query.filter_by(name=name).first()
+    #Checks to see if user is already in db
+    existing_phone = User_Phone.query.filter_by(number=number).first()
 
-    if not user: 
 
+    #Checks if user matches phone in db
+    if existing_phone:
+        if existing_phone.user.name == name:
+
+            user = User.query.filter_by(name=name).first()
+            session["user_id"] = user.user_id
+
+            return redirect('/some-form')
+
+        else: 
+            flash("This phone is registered to another name, please try again!")
+            return redirect("/")
+
+    else:
+
+        #Create user and add to db
         user = User(name=name)
-
         db.session.add(user)
-        db.commit()
+        db.session.commit()
 
+        #Add their phone number to db
         user.add_number(number)
 
-        ession["user_id"] = user.user_id
-
-        return render_template("form.html")
-
-    elif user.check_phone(number):
-
+        #Create a session with user_id
         session["user_id"] = user.user_id
 
-        return render_template("homepage.html")
+        return render_template("form.html")
  
     
 
-@app.route('/enter-info', methods=["GET"])
-def show_form():
+@app.route('/form', methods=["GET"])
+def show_full_form():
+    """Show full form for creating new user and their details. """
+
+    #if there is no session, redirect to homepage
+    if 'user_id' not in session:
+        return redirect('/')
 
     return render_template("form.html")
 
 
 
-# @app.route('/enter-info', methods=["POST"])
-# def save_form_data():
+@app.route('/form', methods=["POST"])
+def save_form():
+    """Saves form information into database. """
   
-#    #Retrieves data from form
+    #Retrieves data from form
+    e_name = request.form.get("e_name")
+    e_number = request.form.get("e_number")
+    details = request.form.get("details")
+    hours = int(request.form.get("hours"))
+    minutes = int(request.form.get("minutes"))
+    time = f"{hours}:{minutes}" 
+
+
+    user = User.query.get(session['user_id'])
     
-#     # e_name = request.form.get("e_name")
-#     # e_number = request.form.get("e_number")
-#     # details = request.form.get("activity")
-#     # hours = int(request.form.get("hours"))
-#     # minutes = int(request.form.get("minutes"))
-#     # time = f"{hours}:{minutes}" 
 
-#     # #This checks or finds if any of their info are in database
-#     # user = User.query.filter_by(name=name).first()
+    user.add_econtact(e_name)
+    e_name = E_Contact.query.filter_by(e_name=e_name).first()
+    print(e_name)
+    e_name.add_enumber(e_number)
+    user.add_activity(details, time)
 
 
+    return redirect('/success')
 
-#     return redirect('/succes')
+@app.route('/some-form', methods=['GET'])
+def show_some_form():
+    """Shows part of form for people that has a session/ already been in db. """
+
+    if 'user_id' not in session:
+        return redirect('/')
+
+    return render_template("some_form.html")
+
+
+
+@app.route('/some-form', methods=['POST'])
+def save_some_form():
+    """Shows form of people that has a session """
+
+    #Retrieves data from form
+    e_name = request.form.get("e_name")
+    e_number = request.form.get("e_number")
+    details = request.form.get("activity")
+    hours = int(request.form.get("hours"))
+    minutes = int(request.form.get("minutes"))
+    time = f"{hours}:{minutes}"   
+
+    # user = User.query.get(session['user_id'])
+
+    # last_ename = 
+    # last_enmumber =
+    # last_details =
+    # last_time = 
+
+    # if user.check_econtact(e_name) == false:
+    #     user.add_econtact(e_name)
+    
+
+    return redirect('/success')
+
+
 
 @app.route('/success')
 def succes():
+    """Shows example text to emergency contact"""
 
     return render_template("success.html")
+
+@app.route('/logout')
+def logout():
+    """Log out/ delete session."""
+
+    del session["user_id"]
+    return redirect("/")
 
 
 if __name__ == "__main__":

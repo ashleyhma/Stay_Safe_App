@@ -11,9 +11,8 @@ def load_data():
     Katy = User(name='Katy')
 
     phone1 = User_Phone(number='5101234567', user_id='1')
-    phone2 = User_Phone(number='4158883344', user_id='1')
-    phone3 = User_Phone(number='6508888888', user_id='2')
-    phone4 = User_Phone(number='6191312222', user_id='3')
+    phone2 = User_Phone(number='6508888888', user_id='2')
+    phone3 = User_Phone(number='6191312222', user_id='3')
 
     Ariana = E_Contact(e_name='Ariana', user_id='1')
     Henry = E_Contact(e_name='Henry', user_id='1')
@@ -39,7 +38,6 @@ def load_data():
     db.session.add(phone1)
     db.session.add(phone2)
     db.session.add(phone3)
-    db.session.add(phone4)
     db.session.add(Ariana)
     db.session.add(Henry)
     db.session.add(Gloria)
