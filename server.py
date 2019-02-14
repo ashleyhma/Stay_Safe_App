@@ -5,6 +5,8 @@ from jinja2 import StrictUndefined
 from flask import (Flask, render_template, redirect, request, flash,
                    session,url_for)
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import desc
+
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import *
@@ -98,16 +100,13 @@ def save_form():
     minutes = int(request.form.get("minutes"))
     time = f"{hours}:{minutes}" 
 
-
     user = User.query.get(session['user_id'])
     
-
     user.add_econtact(e_name)
     e_name = E_Contact.query.filter_by(e_name=e_name).first()
     print(e_name)
     e_name.add_enumber(e_number)
     user.add_activity(details, time)
-
 
     return redirect('/success')
 
@@ -118,7 +117,29 @@ def show_some_form():
     if 'user_id' not in session:
         return redirect('/')
 
-    return render_template("some_form.html")
+    user_id = session['user_id']
+    e_id = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
+        E_Contact.e_id)).first().e_id
+
+    #Gets the last recorded items in the db
+    last_ename = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
+        E_Contact.e_id)).first().e_name
+    last_enumber = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
+        E_Phone.ephone_id)).first().e_number
+    last_details = Activity.query.filter_by(user_id=user_id).order_by(desc(
+        Activity.activity_id)).first().details
+    last_time = Activity.query.filter_by(user_id=user_id).order_by(desc(
+        Activity.activity_id)).first().time
+
+    print("\n\n\n\n")
+    print(last_enumber)
+    print("ENUMBER")
+
+    return render_template("some_form.html", 
+                            last_ename=last_ename,
+                            last_enumber=last_enumber,
+                            last_details=last_details,
+                            last_time=last_time)
 
 
 
@@ -134,12 +155,7 @@ def save_some_form():
     minutes = int(request.form.get("minutes"))
     time = f"{hours}:{minutes}"   
 
-    # user = User.query.get(session['user_id'])
 
-    # last_ename = 
-    # last_enmumber =
-    # last_details =
-    # last_time = 
 
     # if user.check_econtact(e_name) == false:
     #     user.add_econtact(e_name)
