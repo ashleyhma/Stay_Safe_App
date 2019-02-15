@@ -6,6 +6,7 @@ from flask import (Flask, render_template, redirect, request, flash,
                    session,url_for)
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
+from sqlalchemy.exc import IntegrityError
 
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -104,7 +105,6 @@ def save_form():
     
     user.add_econtact(e_name)
     e_name = E_Contact.query.filter_by(e_name=e_name).first()
-    print(e_name)
     e_name.add_enumber(e_number)
     user.add_activity(details, time)
 
@@ -124,16 +124,26 @@ def show_some_form():
     #Gets the last recorded items in the db
     last_ename = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
         E_Contact.e_id)).first().e_name
-    last_enumber = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
-        E_Phone.ephone_id)).first().e_number
+    
+    #Creates phone object
+    e_phone = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
+        E_Phone.ephone_id)).first()
+
+    #To make sure there is no attribute error 
+    if e_phone is not None:
+        last_enumber = e_phone.e_number
+    else:
+        last_enumber = ''
+
     last_details = Activity.query.filter_by(user_id=user_id).order_by(desc(
         Activity.activity_id)).first().details
     last_time = Activity.query.filter_by(user_id=user_id).order_by(desc(
         Activity.activity_id)).first().time
 
-    print("\n\n\n\n")
+    print(last_ename)
     print(last_enumber)
-    print("ENUMBER")
+    print(last_details)
+    print(last_time)
 
     return render_template("some_form.html", 
                             last_ename=last_ename,
@@ -147,19 +157,72 @@ def show_some_form():
 def save_some_form():
     """Shows form of people that has a session """
 
-    #Retrieves data from form
+    user_id = user_id = session['user_id']
+    user = User.query.get(user_id)
+
+    #Retrieves db data from radiobutton
     e_name = request.form.get("e_name")
     e_number = request.form.get("e_number")
-    details = request.form.get("activity")
-    hours = int(request.form.get("hours"))
-    minutes = int(request.form.get("minutes"))
-    time = f"{hours}:{minutes}"   
-
-
-
-    # if user.check_econtact(e_name) == false:
-    #     user.add_econtact(e_name)
+    details = request.form.get("details")
+    time = request.form.get("time")
     
+
+    #retrieves data from input text if new input is chosen
+    if e_name == 'New Emergency Contact':
+        e_name = request.form.get("ename")
+
+        #If the new ename doesn't match the db ename for this phone, dont let them add
+        #(If they try to select new contact with old db phone)
+        e_phone = E_Phone.query.filter_by(e_number=e_number).first()
+        if e_phone:
+            if e_phone.e_contacts.e_name != e_name:
+                flash("This phone already has an Emergency Contact Name, please select the existing name")
+                return redirect('/some-form')
+        
+        else:
+            user.add_econtact(e_name)
+
+    #if enumber is new, retrieve new input and add it to db
+    if e_number == 'New Emergency Contact Number':
+        e_number = request.form.get("enum")
+        e_name = E_Contact.query.filter_by(e_name=e_name).first()
+        existing_ephone = E_Phone.query.filter_by(e_number=e_number).first()
+
+        #If they try to add a new enumber that already exists in db
+        if existing_ephone:
+            if existing_ephone.e_contacts.e_name != e_name:
+                flash("Another Emergency Contact has already taken that number, please try again")
+                return redirect('/some-form')
+        else:
+            e_name.add_enumber(e_number)
+
+    if details == 'New Activity':
+        details = request.form.get("activity")
+
+    #if details and time is new, retrieve data and add to db
+    if time == 'New Time':
+        hours = int(request.form.get("hours"))
+        minutes = int(request.form.get("minutes"))
+        time = f"{hours}:{minutes}"
+
+
+    user.add_activity(details, time)
+
+
+
+
+    # print("\n\n\n")
+    # print(request.form)
+    # print("\n\n\n\n")
+    # print("ENAME", e_name)
+    # print("ENUM", e_number)
+    # print("DETAILS", details)
+    # print("HRS", hours)
+    # print("MIN", minutes)
+    # print("TIME", time)
+    # print("USER ID",user_id)
+    # print("USER", user)
+
 
     return redirect('/success')
 
@@ -190,3 +253,17 @@ if __name__ == "__main__":
     DebugToolbarExtension(app)
 
     app.run(port=5000, host='0.0.0.0')
+
+
+
+
+
+#>>> a = [1, 2, 3]
+# >>> def catchErr(lst):
+# ...   try:
+# ...     return lst[100]
+# ...   except IndexError:
+# ...     print(':(')
+# ... 
+# >>> catchErr(a)
+# :(

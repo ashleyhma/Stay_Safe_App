@@ -5,27 +5,29 @@
 
     <form action="/some-form" method="POST">
 
+
         <fieldset id="e_name">
         Emergency Contact Name:
         <br>
-        <input type="radio" name="e_name" value="Previous Entry">{{ last_ename}}
-        <input type="radio" name="e_name" value="New Emergency Contact">New Emergency Contact <input type="text" name="e_name">
+        <input type="radio" name="e_name" value="{{ last_ename }}">{{ last_ename }}
+        <input type="radio" name="e_name" value="New Emergency Contact">New Emergency 
+        Contact: <input type="text" name="ename">
         <br>
         </fieldset>
     
         <fieldset id="e_number">
         Emergency Contact Number:
         <br>
-        <input type="radio" name="e_number" value="Previous Entry">{{ last_enumber }}
-        <input type="radio" name="e_number" value="New Emergency Contact Number">New Emergency Contact Number <input type="text" name="e_number">
+        <input type="radio" name="e_number" value="{{ last_enumber }}">{{ last_enumber }}
+        <input type="radio" name="e_number" value="New Emergency Contact Number">New Emergency Contact Number: <input type="text" name="enum">
         </fieldset>
         <br>
 
         <fieldset id="details">
         Activity:
         <br>
-        <input type="radio" name="details" value="Previous Entry">{{ last_details }}
-        <input type="radio" name="details" value="New Activity">New Activity<input type="text" name="details">
+        <input type="radio" name="details" value="{{ last_details }}">{{ last_details }}
+        <input type="radio" name="details" value="New Activity">New Activity: <input type="text" name="activity">
         </fieldset>
         <br>
 
@@ -33,7 +35,7 @@
         Time to be checked on (Military Time):
         <br>
 
-        <input type="radio" name="time" value="Preivous Entry">{{ last_time }}
+        <input type="radio" name="time" value="{{ last_time }}">{{ last_time }}
         <input type="radio" name="time" value="New Time">
         HR:
         <select name="hours">
@@ -57,3 +59,22 @@
 
 
 {% endblock %}
+
+
+<!-- <fieldset id="ICE">
+        Emergency Contact Name and Number: 
+        <br>
+        <input type="radio" name="ICE" value="{{ last_ename }} {{ last_enumber }}">{{ last_ename }}, ({{ last_enumber }})
+        <br>
+        <input type="radio" name="ICE" value="New ICE">New Emergency 
+        Contact Name & Number: <input type="text" name="newICE">
+        <br>
+        <br>
+        <br>
+        <input type="radio" name="ICE" value="{{ last_ename }} {{ last_enumber }}">{{ last_ename }}, ({{ last_enumber }})
+        <br>
+        <input type="radio" name="e_name" value="New Emergency Contact">New Emergency 
+        Contact: <input type="text" name="ename">
+        <br>New Emergency Contact Number: <input type="text" name="enum">
+
+        </fieldset> -->

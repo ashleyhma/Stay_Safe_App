@@ -2,6 +2,7 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
+
 db = SQLAlchemy()
 
 ##########################################################################
@@ -38,6 +39,7 @@ class User(db.Model):
         
         db.session.add(self)
         db.session.commit()
+
 
     def add_activity(self, details, time):
         activity = Activity(details=details, time=time)
@@ -103,7 +105,7 @@ class E_Phone(db.Model):
     __tablename__ = "e_phones"
 
     ephone_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    e_number = db.Column(db.String(10), nullable=False)
+    e_number = db.Column(db.String(10), nullable=False, unique=True)
     e_id = db.Column(db.Integer, db.ForeignKey('e_contacts.e_id'))
 
     e_contacts = db.relationship("E_Contact",
