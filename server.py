@@ -22,11 +22,11 @@ app.jinja_env.undefined = StrictUndefined
 @app.route('/', methods=["GET"])
 def homepage():
     """Show homepage with form for user's name and number. If user is already stored
-        in session, redirect to some-form"""
+        in session, redirect to default-form"""
 
-    #If there is a session, redirect to some-form
+    #If there is a session, redirect to default-form
     if 'user_id' in session:
-        return redirect('/some-form')
+        return redirect('/default-form')
  
     #Else show homepage
     return render_template("homepage.html")
@@ -35,7 +35,7 @@ def homepage():
 @app.route('/', methods=["POST"])
 def save_name_num():
     """Saving name and num info into database. 
-        If name and num already in db, redirect to 'some-form'
+        If name and num already in db, redirect to 'default-form'
         else redirect to 'form'
         add to session. """
 
@@ -54,64 +54,26 @@ def save_name_num():
             user = User.query.filter_by(name=name).first()
             session["user_id"] = user.user_id
 
-            return redirect('/some-form')
+            #If matches, send them to the default form
+            return redirect('/default-form')
 
+        #If not, make them try again
         else: 
             flash("This phone is registered to another name, please try again!")
             return redirect("/")
 
-    else:
 
-        #Create user and add to db
-        user = User(name=name)
-        db.session.add(user)
-        db.session.commit()
 
-        #Add their phone number to db
-        user.add_number(number)
-
-        #Create a session with user_id
-        session["user_id"] = user.user_id
-
-        return render_template("form.html")
- 
+@app.route('/register-form')
+def show_registration_form():
+    """Show full form for registering a new user and their details. """
     
 
-@app.route('/form', methods=["GET"])
-def show_full_form():
-    """Show full form for creating new user and their details. """
-
-    #if there is no session, redirect to homepage
-    if 'user_id' not in session:
-        return redirect('/')
-
-    return render_template("form.html")
+    return render_template("register_form.html")
 
 
-
-@app.route('/form', methods=["POST"])
-def save_form():
-    """Saves form information into database. """
-  
-    #Retrieves data from form
-    e_name = request.form.get("e_name")
-    e_number = request.form.get("e_number")
-    details = request.form.get("details")
-    hours = int(request.form.get("hours"))
-    minutes = int(request.form.get("minutes"))
-    time = f"{hours}:{minutes}" 
-
-    user = User.query.get(session['user_id'])
-    
-    user.add_econtact(e_name)
-    e_name = E_Contact.query.filter_by(e_name=e_name).first()
-    e_name.add_enumber(e_number)
-    user.add_activity(details, time)
-
-    return redirect('/success')
-
-@app.route('/some-form', methods=['GET'])
-def show_some_form():
+@app.route('/default-form')
+def show_default_form():
     """Shows part of form for people that has a session/ already been in db. """
 
     if 'user_id' not in session:
@@ -125,114 +87,160 @@ def show_some_form():
     last_ename = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
         E_Contact.e_id)).first().e_name
     
-    #Creates phone object
-    e_phone = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
-        E_Phone.ephone_id)).first()
-
-    #To make sure there is no attribute error 
-    if e_phone is not None:
-        last_enumber = e_phone.e_number
-    else:
-        last_enumber = ''
+    #Gets last emergency number from above emergency contact
+    last_enumber = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
+        E_Phone.ephone_id)).first().e_number
 
     last_details = Activity.query.filter_by(user_id=user_id).order_by(desc(
         Activity.activity_id)).first().details
     last_time = Activity.query.filter_by(user_id=user_id).order_by(desc(
         Activity.activity_id)).first().time
 
-    print(last_ename)
-    print(last_enumber)
-    print(last_details)
-    print(last_time)
+    split_time = last_time.split(":")
+    hours = split_time[0]
+    minutes = split_time[1]
 
-    return render_template("some_form.html", 
+    # print(last_ename)
+    # print(last_enumber)
+    # print(last_details)
+    # print("\n\n\n")
+    # print(last_time)
+    # print(split_time)
+    # print(hours)
+    # print(minutes)
+
+    return render_template("default_form.html", 
                             last_ename=last_ename,
                             last_enumber=last_enumber,
                             last_details=last_details,
-                            last_time=last_time)
+                            hours=hours,
+                            minutes=minutes)
+
+
+@app.route('/change-emergency-contact', methods=['GET'] )
+def change_emergency_contact():
+    """Show emergency contact change form"""
 
 
 
-@app.route('/some-form', methods=['POST'])
-def save_some_form():
-    """Shows form of people that has a session """
+    return render_template("change_econtact.html")
 
-    user_id = user_id = session['user_id']
+
+@app.route('/change-emergency-contact', methods=['POST'])
+def reset_emergency_contact():
+    """This will either add a phone to the emergency contact or add another 
+    emergency contact and number"""
+
+    user_id = session["user_id"]
     user = User.query.get(user_id)
 
-    #Retrieves db data from radiobutton
+    e_name = request.form.get("ename")
+    e_number = request.form.get("enum")
+
+
+    existing_ephone = E_Phone.query.filter_by(e_number=e_number).first()
+
+    #If they try to add a new name with an existing ephone, tell them to try again
+    if existing_ephone:
+        flash("This phone number already exists, please try again")
+        return redirect("/reset_emergency_contact")
+
+    #Else if the user has this econtact, add the number to this econtact
+    elif user.check_econtact(e_name): 
+        e_contact = E_Contact.query.filter_by(e_name=e_name).first()
+        e_contact.add_enumber(e_number)
+
+    #If everything is new, add both
+    else: 
+        user.add_econtact(e_name)
+        e_contact = E_Contact.query.filter_by(e_name=e_name).first()
+        e_contact.add_enumber(e_number)
+
+
+
+    return redirect('/default-form')
+
+@app.route('/new-user-success', methods=['POST'])
+def show_new_user_text():
+
+    #Grabs data from input form
+    name = request.form.get("name")
+    number = request.form.get("number")
+    
+
+    #Create user and add to db
+    user = User(name=name)
+    db.session.add(user)
+    db.session.commit()
+
+    #Add their phone number to db
+    user.add_number(number)
+
+    #Create a session with user_id
+    session["user_id"] = user.user_id
+
+    #Retrieves data from form
     e_name = request.form.get("e_name")
     e_number = request.form.get("e_number")
     details = request.form.get("details")
-    time = request.form.get("time")
+    hours = int(request.form.get("hours"))
+    minutes = int(request.form.get("minutes"))
+    time = f"{hours}:{minutes}" 
     
-
-    #retrieves data from input text if new input is chosen
-    if e_name == 'New Emergency Contact':
-        e_name = request.form.get("ename")
-
-        #If the new ename doesn't match the db ename for this phone, dont let them add
-        #(If they try to select new contact with old db phone)
-        e_phone = E_Phone.query.filter_by(e_number=e_number).first()
-        if e_phone:
-            if e_phone.e_contacts.e_name != e_name:
-                flash("This phone already has an Emergency Contact Name, please select the existing name")
-                return redirect('/some-form')
-        
-        else:
-            user.add_econtact(e_name)
-
-    #if enumber is new, retrieve new input and add it to db
-    if e_number == 'New Emergency Contact Number':
-        e_number = request.form.get("enum")
-        e_name = E_Contact.query.filter_by(e_name=e_name).first()
-        existing_ephone = E_Phone.query.filter_by(e_number=e_number).first()
-
-        #If they try to add a new enumber that already exists in db
-        if existing_ephone:
-            if existing_ephone.e_contacts.e_name != e_name:
-                flash("Another Emergency Contact has already taken that number, please try again")
-                return redirect('/some-form')
-        else:
-            e_name.add_enumber(e_number)
-
-    if details == 'New Activity':
-        details = request.form.get("activity")
-
-    #if details and time is new, retrieve data and add to db
-    if time == 'New Time':
-        hours = int(request.form.get("hours"))
-        minutes = int(request.form.get("minutes"))
-        time = f"{hours}:{minutes}"
-
-
+    user.add_econtact(e_name)
+    e_name = E_Contact.query.filter_by(e_name=e_name).first()
+    e_name.add_enumber(e_number)
     user.add_activity(details, time)
+    user_name = user.name
 
 
+    return render_template("new_user_success.html",
+                            user_name=user_name,
+                            e_name=e_name.e_name,
+                            e_number=e_number,
+                            details=details,
+                            time=time)
 
 
-    # print("\n\n\n")
-    # print(request.form)
-    # print("\n\n\n\n")
-    # print("ENAME", e_name)
-    # print("ENUM", e_number)
-    # print("DETAILS", details)
-    # print("HRS", hours)
-    # print("MIN", minutes)
-    # print("TIME", time)
-    # print("USER ID",user_id)
-    # print("USER", user)
-
-
-    return redirect('/success')
-
-
-
-@app.route('/success')
-def succes():
+@app.route('/returning-user-success', methods=['POST'])
+def show_returning_user_text():
     """Shows example text to emergency contact"""
 
-    return render_template("success.html")
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+    user_name = user.name
+
+    #Gets the last recorded items in the db FOR RETURNING USER
+    last_econtact = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
+        E_Contact.e_id)).first()
+    last_ename = last_econtact.e_name
+    
+    #Gets last emergency contact number for above emergency contact
+    e_id = last_econtact.e_id
+    last_enumber = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
+        E_Phone.ephone_id)).first().e_number
+
+
+    #Retrieves db data from form
+    details = request.form.get("details")
+    hours = int(request.form.get("hours"))
+    minutes = int(request.form.get("minutes"))
+    time = f"{hours}:{minutes}"
+
+    #Always add activity, even if it has been used before
+    user.add_activity(details, time)
+    
+
+
+
+    return render_template("returning_success.html",
+                            user_name=user_name,
+                            last_ename=last_ename,
+                            last_enumber=last_enumber,
+                            details=details,
+                            time=time)
+
+
 
 @app.route('/logout')
 def logout():
