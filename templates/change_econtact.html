@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div>
+    <h1>Change Emergency Contact </h1>
+    <form action="/change-emergency-contact" method="POST">
+        Emergency Contact Name: <input type="text" name="ename">
+        <br>
+        Emergency Contact Number: <input type="text" name="enum">
+        <br>
+        <input type="submit" name="submit">
+    </form>
+</div>
+
+<a href="/default-form"> Click here to go back to default form</a>
+
+
+{% endblock %}

@@ -1,16 +1,16 @@
 """Stay Safe."""
 
 from jinja2 import StrictUndefined
-
 from flask import (Flask, render_template, redirect, request, flash,
                    session,url_for)
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
-
 from flask_debugtoolbar import DebugToolbarExtension
-
 from model import *
+from schedule_texts import *
+import datetime
+import time
 
 
 app = Flask(__name__)
@@ -186,20 +186,33 @@ def show_new_user_text():
     hours = int(request.form.get("hours"))
     minutes = int(request.form.get("minutes"))
     time = f"{hours}:{minutes}" 
+
     
     user.add_econtact(e_name)
     e_name = E_Contact.query.filter_by(e_name=e_name).first()
     e_name.add_enumber(e_number)
     user.add_activity(details, time)
     user_name = user.name
+    e_contact = e_name.e_name
+
+    #Changing int time to datetime time for text use
+    datetime_time = datetime.time(hours, minutes)
+
+    okay_text = write_okay_text(user_name) 
+
+    check_text = write_ec_text(user_name, e_contact, details, number)
 
 
     return render_template("new_user_success.html",
                             user_name=user_name,
-                            e_name=e_name.e_name,
+                            number=number,
+                            e_name=e_contact,
                             e_number=e_number,
                             details=details,
-                            time=time)
+                            time=time,
+                            datetime_time=datetime_time,
+                            okay_text=okay_text,
+                            check_text=check_text)
 
 
 @app.route('/returning-user-success', methods=['POST'])
@@ -209,6 +222,8 @@ def show_returning_user_text():
     user_id = session['user_id']
     user = User.query.get(user_id)
     user_name = user.name
+    phone = User_Phone.query.filter_by(user_id=user_id).first().number
+    number = phone[:3] + "-" + phone[3:6] + "-" + phone[6:]
 
     #Gets the last recorded items in the db FOR RETURNING USER
     last_econtact = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
@@ -230,6 +245,12 @@ def show_returning_user_text():
     #Always add activity, even if it has been used before
     user.add_activity(details, time)
     
+    okay_text = write_okay_text(user_name) 
+
+    check_text = write_ec_text(user_name, last_ename, details, number)
+
+    #Changing int time to datetime time for text use
+    datetime_time = datetime.time(hours, minutes)
 
 
 
@@ -238,7 +259,11 @@ def show_returning_user_text():
                             last_ename=last_ename,
                             last_enumber=last_enumber,
                             details=details,
-                            time=time)
+                            time=time,
+                            okay_text=okay_text,
+                            check_text=check_text,
+                            number=number,
+                            datetime_time=datetime_time)
 
 
 

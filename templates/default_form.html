@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <h1> Default Form </h1>
+
+    <h3>If you don't check in, we will alert your default emergency contact:</h3>
+    <h5> ( This is the last used emergency contact )</h5>
+
+    Emergency Contact: {{ last_ename }} ( {{ last_enumber }})
+    <br>
+    <form action="/returning-user-success" method="POST">
+        New Activity: <input type="text" name="details" value="{{ last_details }}">
+        <br>
+
+        HR:
+        <select name="hours" id="hours">
+            {% for i in range(24) %}
+                <option value=" {{ i }} "> {{ i }}</option>  
+            {% endfor %}
+        </select>
+        MIN:
+        <select name ="minutes" id="minutes">
+            {% for i in range(60) %}
+                <option value=" {{ minutes }}"> {{ i }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <br>
+        <!-- <script> 
+            "use strict";
+            $(function() {
+                $("#hours").val(hours);
+
+            });
+        </script> -->
+        <input type="submit" name="submit">
+    </form>
+    <br>
+    <br>
+    <br>
+    <a href="/change-emergency-contact">Change Emergency Contact Here</a>
+
+
+
+
+
+{% endblock %}
+

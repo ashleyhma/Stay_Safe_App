@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1> Thank you for using Stay Safe! </h1>
+
+<p> <h3>Make sure you entered the right information! This is what we have: </h3>
+    Your Number: {{ number }}
+    <br>
+    Emergency Contact: {{ e_name }}
+    <br>
+    Emergency Contact Number: {{ e_number }}
+    <br>
+    Check Time: {{ datetime_time }}
+
+
+<p> <h4>This is the text that we will send you at {{ time }}:</h4>
+    {{ okay_text }}
+</p>
+<p> <h4> This is the text that will send to your emergency contact if you do not respond 5 min after {{ time }}:</h4>
+    {{ check_text }}
+</p>
+
+<a href="/default-form"> Click here to try again/ go back to default form</a>
+
+
+{% endblock %}
