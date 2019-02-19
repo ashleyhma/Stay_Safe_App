@@ -11,9 +11,13 @@ from model import *
 from schedule_texts import *
 import datetime
 import time
+from twilio import twiml
+from twilio.twiml.messaging_response import MessagingResponse 
+# from flask_ngrok import run_with_ngrok
 
 
 app = Flask(__name__)
+# run_with_ngrok(app)
 
 app.secret_key = "SAFE"
 
@@ -254,6 +258,7 @@ def show_returning_user_text():
 
 
 
+
     return render_template("returning_success.html",
                             user_name=user_name,
                             last_ename=last_ename,
@@ -265,7 +270,46 @@ def show_returning_user_text():
                             number=number,
                             datetime_time=datetime_time)
 
+@app.route('/sms', methods=['POST'])
+def sms():
+    """Receives texts"""
 
+    #Requests the from number and the message
+    from_number = request.form['From']
+    message_body = request.form['Body']
+
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+    user_name = user.name
+
+    phone = User_Phone.query.filter_by(user_id=user_id).first()
+    number = "+1" + phone 
+
+    # last_econtact = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
+    #     E_Contact.e_id)).first()
+
+    last_activity = Activity.query.filter_by(user_id=user_id).order_by(desc(
+        Activity.activity_id)).first().time
+
+    #Find time right now 
+    now = datetime.datetime.utcnow()
+    utc_h = now.hour
+    utc_m = now.minutes
+    utc_now_time = str(datetime.time(utc_h, utc_m))
+
+    changed_wait_time = change_wait_time_to_utc(hour, minute)
+
+    if changed_wait_time in utc_now_time:
+
+        #Send message to emergency contact if no reply
+        if (from_number != number) or (message_body == None):
+            schedule_ec_text_time(hour, minutes, user_name, e_name, details, number)
+
+
+        #If the from number is right and there is something in message body, then reply
+        else: 
+            resp = twiml.MessagingResponse()
+            resp.message("Glad you are okay! Thank you for using Stay Safe.")
 
 @app.route('/logout')
 def logout():
@@ -285,18 +329,13 @@ if __name__ == "__main__":
 
     DebugToolbarExtension(app)
 
+    # app.run()
+    schedule.run_continuously(1)
+
     app.run(port=5000, host='0.0.0.0')
 
 
 
 
 
-#>>> a = [1, 2, 3]
-# >>> def catchErr(lst):
-# ...   try:
-# ...     return lst[100]
-# ...   except IndexError:
-# ...     print(':(')
-# ... 
-# >>> catchErr(a)
-# :(
+
