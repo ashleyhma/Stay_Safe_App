@@ -13,10 +13,10 @@ import os
 import requests
 
 #Twilio Account Information
-account_sid = os.getenv('TEST_TWILIO_ACCOUNT_SID')
-auth_token = os.getenv('TEST_TWILIO_AUTH_TOKEN')
+account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+auth_token = os.getenv('TWILIO_AUTH_TOKEN')
 my_number = os.getenv('MY_NUMBER')
-twilio_number = os.getenv('TEST_NUMBER')
+twilio_number = os.getenv('TWILIO_NUMBER')
 
 """ RUNS A JOB ONLY ONCE 
 
@@ -31,6 +31,8 @@ https://schedule.readthedocs.io/en/stable/faq.html#how-can-i-run-a-job-only-once
 def write_okay_text(user_name):
     """Writes up a generalized hey, are you okay? text """
 
+    print(account_sid)
+    print(auth_token)
     return f"Hi {user_name}, this is Stay Safe. Hope you are doing okay! If you do not respond within 5 minutes, we will send a text to your emergency contact."
 
 
@@ -61,7 +63,7 @@ def schedule_check_text_time(hour, minutes, user_name):
     """takes inputted time and keeps checking time until the right time to call 
     the text function. """
 
-    utc_hour = hour + 8 
+    utc_hour = hour + 8
 
     if utc_hour == 24:
         u_hour = 0
@@ -242,10 +244,53 @@ def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number):
     schedule.every().day.at(time).do(send_ec_text, user_name=user_name, 
         e_name=e_name, details=details, number=number)
 
-def check_if_received_text():
+def check_if_received_text(hour, minute, from_number):
     """Check if text was received by server"""
 
+    #Find time right now 
+    now = datetime.datetime.utcnow()
+    utc_h = now.hour
+    utc_m = now.minutes
+    utc_now_time = str(datetime.time(utc_h, utc_m))
+
+    changed_wait_time = change_wait_time_to_utc(hour, minute)
+
+    #when it is the right time
+    if changed_wait_time in utc_now_time:
+        #if the from number exists because of the request
+        if from_number: 
+            return True
+        else:
+            return False
+            
+
+# schedule_ec_text_time(hour, minute, user_name, e_name, details, number)
+
+
+def check_time():
+
+    print("checking...")
+    print(schedule.jobs)
+
+    now = datetime.datetime.utcnow()
+    utc_h = now.hour
+    utc_m = now.minute
+    utc_now_time = str(datetime.time(utc_h, utc_m))
+
+    changed_wait_time = change_wait_time_to_utc(hour, minute)
+
+    t_f = Check_Text.query.filter_by(phone=phone).first().true_false
     
+
+    #If it is the right time, then clear scheduler
+    if changed_wait_time in utc_now_time:
+        if t_f == False:
+            schedule_ec_text_time(hour, minutes, user_name, e_name, details, phone)
+           
+       
+
+            # schedule.clear("test")
+        #delete row
 
 
 
@@ -253,10 +298,25 @@ def check_if_received_text():
 
 if __name__ == "__main__":
 
+
+    # def check_time():
+    #     print("checking...")
+    #     print(schedule.jobs)
+
+    #     now = datetime.datetime.utcnow()
+    #     utc_h = now.hour
+    #     utc_m = now.minute
+    #     utc_now_time = str(datetime.time(utc_h, utc_m))
+
+    #     input_time = str(datetime.time(22, 42))
+
+    #     if input_time in utc_now_time:
+    #         schedule.clear("test")
+
+    # schedule.every().seconds.tag("test").do(check_time)
+
     schedule.run_continuously(1)
-#     while True:
-#         schedule.run_pending()
-#         time.sleep(1)
+
 
 
 

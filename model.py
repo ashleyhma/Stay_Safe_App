@@ -48,6 +48,13 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def add_check_text(self, true_false):
+        check_text = Check_Text(true_false=true_false)
+        self.check_texts.append(check_text)
+
+        db.session.add(self)
+        db.session.commit()
+
 
     def __repr__(self):
 
@@ -132,6 +139,22 @@ class Activity(db.Model):
     def __repr__(self):
 
         return f"<Activity={self.details}, user_id={self.user_id}>"
+
+class Check_Text(db.Model):
+    """Storing if texts are received."""
+
+    __tablename__ = "check_texts"
+
+    text_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    true_false = db.Column(db.String(6), nullable=False)
+
+    user = db.relationship("User",
+                            backref="check_texts")
+
+    def __repr__(self):
+
+        return f"<Id={self.text_id} user_id={self.user_id} T/F={self.true_false}>"
 
 
 

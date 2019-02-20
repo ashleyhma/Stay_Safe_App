@@ -13,7 +13,7 @@ import datetime
 import time
 from twilio import twiml
 from twilio.twiml.messaging_response import MessagingResponse 
-# from flask_ngrok import run_with_ngrok
+
 
 
 app = Flask(__name__)
@@ -206,6 +206,9 @@ def show_new_user_text():
 
     check_text = write_ec_text(user_name, e_contact, details, number)
 
+    #Add user_id to check_text table to false because no text received yet
+    user.add_check_text("false")
+
 
     return render_template("new_user_success.html",
                             user_name=user_name,
@@ -249,15 +252,19 @@ def show_returning_user_text():
     #Always add activity, even if it has been used before
     user.add_activity(details, time)
     
+    #To show example of texts on html page
     okay_text = write_okay_text(user_name) 
-
     check_text = write_ec_text(user_name, last_ename, details, number)
 
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
 
+    #Sends the "Are you okay" text at the specific time said in form
+    schedule_check_text_time(hours, minutes, user_name)
 
-
+    #Add user_id to check_text table to false because no text received yet
+    user.add_check_text("false")
+    
 
     return render_template("returning_success.html",
                             user_name=user_name,
@@ -274,42 +281,30 @@ def show_returning_user_text():
 def sms():
     """Receives texts"""
 
+    import pdb; pdb.set_trace()
+
     #Requests the from number and the message
     from_number = request.form['From']
     message_body = request.form['Body']
 
-    user_id = session['user_id']
-    user = User.query.get(user_id)
-    user_name = user.name
+    print(from_number)
+    print(message_body)
+   
+    user = db.session.query(User).join(User_Phone).filter(User_Phone.number == from_number[2:]).first()
+    user_id = user.user_id
 
-    phone = User_Phone.query.filter_by(user_id=user_id).first()
-    number = "+1" + phone 
+    #Gets status of object. "True" or "False" if its been received
+    check_status = Check_Text.query.filter_by(user_id=user_id).first()
 
-    # last_econtact = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
-    #     E_Contact.e_id)).first()
+    if from_number:
+        #change db row to true 
+        check_status.true_false = "true"
 
-    last_activity = Activity.query.filter_by(user_id=user_id).order_by(desc(
-        Activity.activity_id)).first().time
-
-    #Find time right now 
-    now = datetime.datetime.utcnow()
-    utc_h = now.hour
-    utc_m = now.minutes
-    utc_now_time = str(datetime.time(utc_h, utc_m))
-
-    changed_wait_time = change_wait_time_to_utc(hour, minute)
-
-    if changed_wait_time in utc_now_time:
-
-        #Send message to emergency contact if no reply
-        if (from_number != number) or (message_body == None):
-            schedule_ec_text_time(hour, minutes, user_name, e_name, details, number)
+        resp = MessagingResponse()
+        resp.message("Glad you are okay! Thank you for using Stay Safe.")
+        return str(resp)
 
 
-        #If the from number is right and there is something in message body, then reply
-        else: 
-            resp = twiml.MessagingResponse()
-            resp.message("Glad you are okay! Thank you for using Stay Safe.")
 
 @app.route('/logout')
 def logout():
@@ -320,7 +315,9 @@ def logout():
 
 
 if __name__ == "__main__":
-    
+
+    # schedule.every().seconds.tag("test").do(check_time)
+
     app.debug = True
     
     app.jinja_env.auto_reload = app.debug
@@ -329,7 +326,6 @@ if __name__ == "__main__":
 
     DebugToolbarExtension(app)
 
-    # app.run()
     schedule.run_continuously(1)
 
     app.run(port=5000, host='0.0.0.0')
