@@ -65,6 +65,9 @@ def save_name_num():
         else: 
             flash("This phone is registered to another name, please try again!")
             return redirect("/")
+    else:
+        flash("We do not have your number registered. Please register!")
+        return redirect("/")
 
 
 
@@ -202,9 +205,12 @@ def show_new_user_text():
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
 
+    #Example texts to user and emergency texts
     okay_text = write_okay_text(user_name) 
-
     check_text = write_ec_text(user_name, e_contact, details, number)
+
+    #Sends the "Are you okay" text at the specific time said in form
+    # schedule_check_text_time(hours, minutes, user_name)
 
     #Add user_id to check_text table to false because no text received yet
     user.add_check_text("false")
@@ -216,7 +222,6 @@ def show_new_user_text():
                             e_name=e_contact,
                             e_number=e_number,
                             details=details,
-                            time=time,
                             datetime_time=datetime_time,
                             okay_text=okay_text,
                             check_text=check_text)
@@ -260,7 +265,7 @@ def show_returning_user_text():
     datetime_time = datetime.time(hours, minutes)
 
     #Sends the "Are you okay" text at the specific time said in form
-    schedule_check_text_time(hours, minutes, user_name)
+    # schedule_check_text_time(hours, minutes, user_name)
 
     #Add user_id to check_text table to false because no text received yet
     user.add_check_text("false")
@@ -271,24 +276,23 @@ def show_returning_user_text():
                             last_ename=last_ename,
                             last_enumber=last_enumber,
                             details=details,
-                            time=time,
                             okay_text=okay_text,
                             check_text=check_text,
                             number=number,
                             datetime_time=datetime_time)
 
-@app.route('/sms', methods=['POST'])
+@app.route('/sms', methods=['GET','POST'])
 def sms():
     """Receives texts"""
 
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
 
     #Requests the from number and the message
     from_number = request.form['From']
     message_body = request.form['Body']
 
-    print(from_number)
-    print(message_body)
+    # print(from_number)
+    # print(message_body)
    
     user = db.session.query(User).join(User_Phone).filter(User_Phone.number == from_number[2:]).first()
     user_id = user.user_id
@@ -296,13 +300,14 @@ def sms():
     #Gets status of object. "True" or "False" if its been received
     check_status = Check_Text.query.filter_by(user_id=user_id).first()
 
-    if from_number:
-        #change db row to true 
-        check_status.true_false = "true"
+    
+    #change db row to true 
+    check_status.true_false = "true"
+    db.session.commit()
 
-        resp = MessagingResponse()
-        resp.message("Glad you are okay! Thank you for using Stay Safe.")
-        return str(resp)
+    resp = MessagingResponse()
+    resp.message("Glad you are okay! Thank you for using Stay Safe.")
+    return str(resp)
 
 
 
@@ -316,7 +321,7 @@ def logout():
 
 if __name__ == "__main__":
 
-    # schedule.every().seconds.tag("test").do(check_time)
+    schedule.every().seconds.do(check_time)
 
     app.debug = True
     

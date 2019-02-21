@@ -147,7 +147,7 @@ class Check_Text(db.Model):
 
     text_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    true_false = db.Column(db.String(6), nullable=False)
+    true_false = db.Column(db.String(6), nullable=True)
 
     user = db.relationship("User",
                             backref="check_texts")
