@@ -23,6 +23,8 @@ app.secret_key = "SAFE"
 
 app.jinja_env.undefined = StrictUndefined
 
+
+
 @app.route('/', methods=["GET"])
 def homepage():
     """Show homepage with form for user's name and number. If user is already stored
@@ -210,7 +212,7 @@ def show_new_user_text():
     check_text = write_ec_text(user_name, e_contact, details, number)
 
     #Sends the "Are you okay" text at the specific time said in form
-    # schedule_check_text_time(hours, minutes, user_name)
+    schedule_check_text_time(hours, minutes, user_name, num_for_twilio)
 
     #Add user_id to check_text table to false because no text received yet
     user.add_check_text("false")
@@ -264,8 +266,10 @@ def show_returning_user_text():
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
 
+    num_for_twilio = "+1" + phone
+
     #Sends the "Are you okay" text at the specific time said in form
-    # schedule_check_text_time(hours, minutes, user_name)
+    schedule_check_text_time(hours, minutes, user_name, num_for_twilio)
 
     #Add user_id to check_text table to false because no text received yet
     user.add_check_text("false")
@@ -317,11 +321,13 @@ def logout():
 
     del session["user_id"]
     return redirect("/")
+        
+
 
 
 if __name__ == "__main__":
 
-    schedule.every().seconds.do(check_time)
+    schedule.every(15).seconds.do(check_time)
 
     app.debug = True
     

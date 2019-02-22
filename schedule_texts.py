@@ -11,6 +11,8 @@ from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 import os
 import requests
+from model import *
+from flask_sqlalchemy import SQLAlchemy 
 
 #Twilio Account Information
 account_sid = os.getenv('TWILIO_ACCOUNT_SID')
@@ -37,7 +39,7 @@ def write_okay_text(user_name):
 
 
 
-def send_check_text(user_name):
+def send_check_text(user_name, number):
     """Sends okay_text when it is the specified time using Twilio."""
 
     print("Sending text to User")
@@ -48,7 +50,7 @@ def send_check_text(user_name):
     message = client.messages.create(
                         body=text,
                         from_=twilio_number,
-                        to=my_number
+                        to=number
                         )
 
     print(client)
@@ -56,66 +58,26 @@ def send_check_text(user_name):
     print(message.sid)
 
 
-    # return schedule.CancelJob
+    return schedule.CancelJob
 
 
-def schedule_check_text_time(hour, minutes, user_name):
+def schedule_check_text_time(hour, minutes, user_name, number):
     """takes inputted time and keeps checking time until the right time to call 
     the text function. """
 
-    utc_hour = hour + 8
-
-    if utc_hour == 24:
-        u_hour = 0
-    elif utc_hour == 25:
-        u_hour = 1
-    elif utc_hour == 26:
-        u_hour = 2
-    elif utc_hour == 27:
-        u_hour = 3
-    elif utc_hour == 28:
-        u_hour = 4
-    elif utc_hour == 29:
-        u_hour = 5
-    elif utc_hour == 30:
-        u_hour = 6
-    elif utc_hour == 31:
-        u_hour = 7
-    else:
-        u_hour = utc_hour
-
-    utc_time = str(datetime.time(u_hour, minutes)).split(":")
-    time = utc_time[0] + ":" + utc_time[1]
+    #Changes string to datetime object
+    datetime_time = str(datetime.time(hour, minutes)).split(":")
+    time = datetime_time[0] + ":" + datetime_time[1]
     print(time)
  
-    # utc_offset = 8
-
-    # todays = datetime.datetime.now()
-    # todays_date = str(datetime.datetime.now().date())
-
-    # pacific_time = datetime.datetime.strptime(time, '%H:%M')
-
-    # pacific_time = datetime.time(hours, minutes)
-
-    # result_utc_datetime = pacific_time + datetime.timedelta(hours=utc_offset)
-    # result_utc_datetime = datetime.combine(pacific_time + timedelta(hours=8))
-    # print(pacific_time)
-    # x = datetime.timedelta(hours=utc_offset)
-    # print(pacific_time + x)
-    # print(result_utc_datetime)
-
-    # print(result_utc_datetime)
-
-    schedule.every().day.at(time).do(send_check_text, user_name=user_name)
-
+    #Schedules are you okay text
+    schedule.every().day.at(time).do(send_check_text, user_name=user_name, number=number).tag('first_text')
 
 
 def write_ec_text(user_name, e_name, details, number):
     """Writes up specific text to emergency contact."""
 
     return f"Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, I might have not made it to my destination. Please give me a call at {number}."  
-
-
 
 
 def send_ec_text(user_name, e_name, details, number):
@@ -135,89 +97,11 @@ def send_ec_text(user_name, e_name, details, number):
     print(text)
     print(message.sid)
 
-    # return schedule.CancelJob
+    return schedule.CancelJob
 
 
 def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number):
     """Check for the time that the emergency contact text will be sent out"""
-
-    #Pacific to UTC 
-    utc_hour = hour + 8 
-
-    if utc_hour == 24:
-        u_hour = 0
-    elif utc_hour == 25:
-        u_hour = 1
-    elif utc_hour == 26:
-        u_hour = 2
-    elif utc_hour == 27:
-        u_hour = 3
-    elif utc_hour == 28:
-        u_hour = 4
-    elif utc_hour == 29:
-        u_hour = 5
-    elif utc_hour == 30:
-        u_hour = 6
-    elif utc_hour == 31:
-        u_hour = 7
-    else:
-        u_hour = utc_hour
-
-    #Adding 5 minutes to check time
-    wait_min = minutes + 5 
-
-    if wait_min == 61:
-        later_min = 1
-        u_hour += 1
-    elif wait_min == 62:
-        later_min = 2
-        u_hour += 1 
-    elif wait_min == 63:
-        later_min = 3
-        u_hour += 1
-    elif wait_min == 64:
-        later_min = 4
-        u_hour += 1 
-    elif wait_min == 65:
-        later_min = 5
-        u_hour += 1 
-    else:
-        later_min = wait_min
-
-    utc_time = str(datetime.time(u_hour, later_min)).split(":")
-    time = utc_time[0] + ":" + utc_time[1]
-    print(time)
-
-
-    # wait_time = datetime.timedelta(seconds=300)
-
-    schedule.every().day.at(time).do(send_ec_text, user_name=user_name, 
-        e_name=e_name, details=details, number=number)
-
-def change_wait_time_to_utc(hour, minutes):
-    """Change pacific time to utc time"""
-
-    #Pacific to UTC 
-    utc_hour = hour + 8 
-
-    if utc_hour == 24:
-        u_hour = 0
-    elif utc_hour == 25:
-        u_hour = 1
-    elif utc_hour == 26:
-        u_hour = 2
-    elif utc_hour == 27:
-        u_hour = 3
-    elif utc_hour == 28:
-        u_hour = 4
-    elif utc_hour == 29:
-        u_hour = 5
-    elif utc_hour == 30:
-        u_hour = 6
-    elif utc_hour == 31:
-        u_hour = 7
-    else:
-        u_hour = utc_hour
 
     # #Adding 5 minutes to check time
     # wait_min = minutes + 5 
@@ -241,26 +125,94 @@ def change_wait_time_to_utc(hour, minutes):
     #     later_min = wait_min
 
 
-    #Adding 5 minutes to check time
+    #FOR TEST: Adding 1 min to check time
+    wait_min = minutes + 2 
+    # later_min = minutes
+
+    # if wait_min == 60:
+    #     later_min = 0
+    #     hour += 1 
+    # else:
+    #     later_min = wait_min
+
+    if wait_min == 58:
+        later_min = 0
+        hour += 1 
+    elif wait_min == 59:
+        later_min = 1
+        hour += 1 
+    elif wait_min == 60:
+        later_min = 2
+        hour += 1
+    else:
+        later_min = wait_min
+
+    datetime_time = str(datetime.time(hour, later_min)).split(":")
+    time = datetime_time[0] + ":" + datetime_time[1]
+    print(time)
+
+    schedule.every().day.at(time).do(send_ec_text, user_name=user_name, 
+        e_name=e_name, details=details, number=number)
+
+
+
+def change_to_wait_time(hour, minutes):
+    """Change pacific time to utc time"""
+
+
+    # #Adding 5 minutes to check time
+    # wait_min = minutes + 5 
+
+    # if wait_min == 61:
+    #     later_min = 1
+    #     u_hour += 1
+    # elif wait_min == 62:
+    #     later_min = 2
+    #     u_hour += 1 
+    # elif wait_min == 63:
+    #     later_min = 3
+    #     u_hour += 1
+    # elif wait_min == 64:
+    #     later_min = 4
+    #     u_hour += 1 
+    # elif wait_min == 65:
+    #     later_min = 5
+    #     u_hour += 1 
+    # else:
+    #     later_min = wait_min
+
+
+    #FOR TEST: Adding 1 min to check time
     wait_min = minutes + 1 
 
 
     if wait_min == 60:
         later_min = 0
-        u_hour += 1 
+        hour += 1 
     elif wait_min == 61:
         later_min = 1
-        u_hour += 1 
+        hour += 1 
     else:
         later_min = wait_min
 
-    utc_time = str(datetime.time(u_hour, later_min)).split(":")
-    time = utc_time[0] + ":" + utc_time[1]
+    # if wait_min == 58:
+    #     later_min = 0
+    #     hour += 1 
+    # elif wait_min == 59:
+    #     later_min = 1
+    #     hour += 1 
+    # elif wait_min == 60:
+    #     later_min = 2
+    #     hour += 1
+    # else:
+    #     later_min = wait_min
+
+    datetime_time = str(datetime.time(hour, later_min)).split(":")
+    time = datetime_time[0] + ":" + datetime_time[1]
     # print(time)
     return time
             
 
-# schedule_ec_text_time(hour, minute, user_name, e_name, details, number)
 
 
 def check_time():
@@ -271,52 +223,90 @@ def check_time():
     print(schedule.jobs)
 
     #RIGHT NOW's TIME 
-    now = datetime.datetime.utcnow()
-    utc_h = now.hour
-    utc_m = now.minute
-    utc_now_time = str(datetime.time(utc_h, utc_m))
+    now = datetime.datetime.now()
+    now_hour = now.hour
+    now_minute = now.minute
+    now_time = str(datetime.time(now_hour, now_minute))
 
     #Querying everything in the check text table that isnt None 
-    unchecked_text_queue = Check_Text.query.filter((Check_Text.true_false == "true") | (Check_Text.true_false == "false")).all()
+    unchecked_text_queue = Check_Text.query.options(
+        db.joinedload('user').joinedload('e_contacts')
+    ).options(
+        db.joinedload('user').joinedload('activities')
+    ).all()
 
-    for user in unchecked_text_queue:
+
+
+    for check in unchecked_text_queue:
+    # while unchecked_text_queue:
         #retrieve info for everyone in queue
+        
+        user = check.user 
         user_id = user.user_id
-        user_name = user.user_name
+        user_name = user.name
 
-        e_name = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
-        E_Contact.e_id)).first().e_name
+        # e_name = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
+        # E_Contact.e_id)).first().e_name
+        e_name = user.e_contacts[-1].e_name
 
-        details = Activity.query.filter_by(user_id=user_id).order_by(desc(
-        Activity.activity_id)).first().details
+        # details = Activity.query.filter_by(user_id=user_id).order_by(desc(
+        # Activity.activity_id)).first().details
+        activity = user.activities[-1]
+        details = activity.details
 
-        phone = User_Phone.query.filter_by(user_id=user_id).first().phone
-
+        # phone = User_Phone.query.filter_by(user_id=user_id).first().phone
+        phone = user.phones[-1].number
 
         #retrieve each user's last 'time'
-        time = Activity.query.filter_by(user_id=user_id).order_by(desc(Activity.activity_id)).first().time
+        # time = Activity.query.filter_by(user_id=user_id).order_by(desc(Activity.activity_id)).first().time
+        time = activity.time
         split_time = time.split(":")
-        hours = split_time[0]
-        minutes = split_time[1]
+        hours = int(split_time[0])
+        minutes = int(split_time[1])
+
+        #Add 5 min to check time, but 1 min for TESTING
+        changed_wait_time = change_to_wait_time(hours, minutes)
 
 
-        #Change that time to UTC time
-        changed_wait_time = change_wait_time_to_utc(hour, minute)
-
-        check_status = Check_Text.query.filter_by(user_id=user_id).first()
+        # check_status = Check_Text.query.filter_by(user_id=user_id).first()
+        check_status = user.check_texts[-1]
         
         t_or_f = check_status.true_false
-        
 
-        #If it is the right time, then clear scheduler
-        if changed_wait_time in utc_now_time:
-            if t_or_f == False:
+
+        # if (changed_wait_time in now_time) and (t_or_f == "false"):
+        #     schedule_ec_text_time(hours, minutes, user_name, e_name, details, phone)  
+
+        #     #delete row
+        #     Check_Text.query.filter_by(user_id=user_id).delete()
+        #     db.session.commit()
+            
+        # Check_Text.query.filter_by(user_id=user_id).delete()
+        # db.session.commit()
+
+         #If it is the right time, then clear scheduler
+        if changed_wait_time in now_time:
+            print("\n\n\n\n")
+            print("CHANGED TIME", changed_wait_time)
+            print("NOW",now_time)
+            print("T OR F", t_or_f)
+            schedule.clear('first_text')
+            #If user did not respond, send to emergency contact
+            if t_or_f == "false":
+                print("AFTER, T OR F", t_or_f)
                 schedule_ec_text_time(hours, minutes, user_name, e_name, details, phone)  
+
                 #delete row
-                t_or_f = None
+                Check_Text.query.filter_by(user_id=user_id).delete()
+                db.session.commit()
+                break
+            #if they did respond, delete their row
             else:
                 #delete row
-                t_or_f = None
+                Check_Text.query.filter_by(user_id=user_id).delete()
+                db.session.commit()
+            
+
 
 
 
