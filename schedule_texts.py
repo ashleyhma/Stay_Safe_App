@@ -15,10 +15,10 @@ from model import *
 from flask_sqlalchemy import SQLAlchemy 
 
 #Twilio Account Information
-account_sid = os.getenv('TWILIO_ACCOUNT_SID')
-auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+account_sid = os.getenv('TEST_TWILIO_ACCOUNT_SID')
+auth_token = os.getenv('TEST_TWILIO_AUTH_TOKEN')
 my_number = os.getenv('MY_NUMBER')
-twilio_number = os.getenv('TWILIO_NUMBER')
+twilio_number = os.getenv('TEST_NUMBER')
 
 """ RUNS A JOB ONLY ONCE 
 
@@ -35,7 +35,8 @@ def write_okay_text(user_name):
 
     print(account_sid)
     print(auth_token)
-    return f"Hi {user_name}, this is Stay Safe. Hope you are doing okay! If you do not respond within 5 minutes, we will send a text to your emergency contact."
+    return f"""Hi {user_name}, this is Stay Safe. Hope you are doing okay! If you do 
+    not respond within 5 minutes, we will send a text to your emergency contact."""
 
 
 
@@ -74,24 +75,30 @@ def schedule_check_text_time(hour, minutes, user_name, number):
     schedule.every().day.at(time).do(send_check_text, user_name=user_name, number=number).tag('first_text')
 
 
-def write_ec_text(user_name, e_name, details, number):
+def write_ec_text(user_name, e_name, details, number, lat=None, lng=None):
     """Writes up specific text to emergency contact."""
 
-    return f"Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, I might have not made it to my destination. Please give me a call at {number}."  
+    if lat == None:
+        return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, 
+        I might have not made it to my destination. Please give me a call at {number}."""  
+    else:
+        return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, 
+        I might have not made it to my destination. My last location is at latitutde: {lat}, 
+        longitude: {lng}. Please give me a call at {number}."""  
 
 
-def send_ec_text(user_name, e_name, details, number):
+def send_ec_text(user_name, e_name, details, number, e_number, lat=None, lng=None):
     """Sends emergency contact text using Twilio."""
 
     print("Sending Text to Emergency Contact")
 
     client = Client(account_sid, auth_token)
-    text = write_ec_text(user_name, e_name, details, number)
+    text = write_ec_text(user_name, e_name, details, number, lat, lng)
 
     message = client.messages.create(
                         body=text,
                         from_=twilio_number,
-                        to=my_number
+                        to=e_number
                         )
 
     print(text)
@@ -100,11 +107,13 @@ def send_ec_text(user_name, e_name, details, number):
     return schedule.CancelJob
 
 
-def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number):
+def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number, 
+    e_number, lat=None, lng=None):
     """Check for the time that the emergency contact text will be sent out"""
 
     # #Adding 5 minutes to check time
-    # wait_min = minutes + 5 
+    # wait_min = minutes + 6 
+
 
     # if wait_min == 61:
     #     later_min = 1
@@ -121,19 +130,15 @@ def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number):
     # elif wait_min == 65:
     #     later_min = 5
     #     u_hour += 1 
+    # elif wait_min == 66:
+    #     later_min = 6
+    #     u_hour += 1 
     # else:
     #     later_min = wait_min
 
 
-    #FOR TEST: Adding 1 min to check time
+    #FOR TEST: Adding 2 min to schedule time
     wait_min = minutes + 2 
-    # later_min = minutes
-
-    # if wait_min == 60:
-    #     later_min = 0
-    #     hour += 1 
-    # else:
-    #     later_min = wait_min
 
     if wait_min == 58:
         later_min = 0
@@ -152,7 +157,8 @@ def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number):
     print(time)
 
     schedule.every().day.at(time).do(send_ec_text, user_name=user_name, 
-        e_name=e_name, details=details, number=number)
+        e_name=e_name, details=details, number=number, e_number=e_number, 
+        lat=lat, lng=lng)
 
 
 
@@ -195,17 +201,6 @@ def change_to_wait_time(hour, minutes):
     else:
         later_min = wait_min
 
-    # if wait_min == 58:
-    #     later_min = 0
-    #     hour += 1 
-    # elif wait_min == 59:
-    #     later_min = 1
-    #     hour += 1 
-    # elif wait_min == 60:
-    #     later_min = 2
-    #     hour += 1
-    # else:
-    #     later_min = wait_min
 
     datetime_time = str(datetime.time(hour, later_min)).split(":")
     time = datetime_time[0] + ":" + datetime_time[1]
@@ -245,17 +240,19 @@ def check_time():
         user_id = user.user_id
         user_name = user.name
 
+        # phone = User_Phone.query.filter_by(user_id=user_id).first().phone
+        phone = user.phones[-1].number
+
         # e_name = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
         # E_Contact.e_id)).first().e_name
         e_name = user.e_contacts[-1].e_name
+        e_number = user.e_contacts[-1].e_phones[-1].e_number
+        formatted_enum = "+1" + e_number
 
         # details = Activity.query.filter_by(user_id=user_id).order_by(desc(
         # Activity.activity_id)).first().details
         activity = user.activities[-1]
         details = activity.details
-
-        # phone = User_Phone.query.filter_by(user_id=user_id).first().phone
-        phone = user.phones[-1].number
 
         #retrieve each user's last 'time'
         # time = Activity.query.filter_by(user_id=user_id).order_by(desc(Activity.activity_id)).first().time
@@ -264,9 +261,15 @@ def check_time():
         hours = int(split_time[0])
         minutes = int(split_time[1])
 
+        if user.locations:
+            lat = user.locations[-1].lat 
+            lng = user.locations[-1].lng 
+        else: 
+            lat = None
+            lng = None
+
         #Add 5 min to check time, but 1 min for TESTING
         changed_wait_time = change_to_wait_time(hours, minutes)
-
 
         # check_status = Check_Text.query.filter_by(user_id=user_id).first()
         check_status = user.check_texts[-1]
@@ -274,27 +277,18 @@ def check_time():
         t_or_f = check_status.true_false
 
 
-        # if (changed_wait_time in now_time) and (t_or_f == "false"):
-        #     schedule_ec_text_time(hours, minutes, user_name, e_name, details, phone)  
-
-        #     #delete row
-        #     Check_Text.query.filter_by(user_id=user_id).delete()
-        #     db.session.commit()
-            
-        # Check_Text.query.filter_by(user_id=user_id).delete()
-        # db.session.commit()
-
          #If it is the right time, then clear scheduler
         if changed_wait_time in now_time:
-            print("\n\n\n\n")
-            print("CHANGED TIME", changed_wait_time)
-            print("NOW",now_time)
-            print("T OR F", t_or_f)
-            schedule.clear('first_text')
+            # print("\n\n\n\n")
+            # print("CHANGED TIME", changed_wait_time)
+            # print("NOW",now_time)
+            # print("T OR F", t_or_f)
+            # schedule.clear('first_text')
             #If user did not respond, send to emergency contact
-            if t_or_f == "false":
-                print("AFTER, T OR F", t_or_f)
-                schedule_ec_text_time(hours, minutes, user_name, e_name, details, phone)  
+            if t_or_f == False:
+                # print("AFTER, T OR F", t_or_f)
+                schedule_ec_text_time(hours, minutes, user_name, e_name, details, 
+                    phone, formatted_enum, lat, lng)  
 
                 #delete row
                 Check_Text.query.filter_by(user_id=user_id).delete()
@@ -309,25 +303,7 @@ def check_time():
 
 
 
-
 if __name__ == "__main__":
-
-
-    # def check_time():
-    #     print("checking...")
-    #     print(schedule.jobs)
-
-    #     now = datetime.datetime.utcnow()
-    #     utc_h = now.hour
-    #     utc_m = now.minute
-    #     utc_now_time = str(datetime.time(utc_h, utc_m))
-
-    #     input_time = str(datetime.time(22, 42))
-
-    #     if input_time in utc_now_time:
-    #         schedule.clear("test")
-
-    # schedule.every().seconds.tag("test").do(check_time)
 
     schedule.run_continuously(1)
 

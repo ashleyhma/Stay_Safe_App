@@ -7,26 +7,28 @@
 <p class="form"><center>
 
 
-    <form action="/" method="POST">
+    <form action="/" method="POST" id="login-form">
         
             Enter Full Name: 
             <br>
-            <input type="text" name="name">
+            <input type="text" name="name" id="name">
             <br>
 
         
             Phone Number:
             <br>
-            <input type="text" name="number">
+            <input type="text" name="number" id="number">
             <br>
 
-            <input type="submit" name="Submit">
+            <input type="submit" name="Submit" id="submit-login-form">
     </form>
 </p>
 
 <p> <a href="/register-form">Click here to register!</a></p>
 </center>
 
+<script src="http://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="/static/form_alerts.js"></script>
 
 
 {% endblock %}

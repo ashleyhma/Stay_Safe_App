@@ -2,7 +2,7 @@
 
 from jinja2 import StrictUndefined
 from flask import (Flask, render_template, redirect, request, flash,
-                   session,url_for)
+                   session, jsonify)
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError
@@ -23,6 +23,7 @@ app.secret_key = "SAFE"
 
 app.jinja_env.undefined = StrictUndefined
 
+GOOGLE_KEY = os.getenv('GOOGLE_KEY')
 
 
 @app.route('/', methods=["GET"])
@@ -53,7 +54,7 @@ def save_name_num():
     existing_phone = User_Phone.query.filter_by(number=number).first()
 
 
-    #Checks if user matches phone in db
+    # Checks if user matches phone in db
     if existing_phone:
         if existing_phone.user.name == name:
 
@@ -71,7 +72,35 @@ def save_name_num():
         flash("We do not have your number registered. Please register!")
         return redirect("/")
 
+@app.route('/check-phone-num.json')
+def check_phone_num():
 
+    name = request.values.get("name")
+    number = request.values.get("number")
+    msg = {}
+    # import pdb; pdb.set_trace()
+
+    existing_phone = User_Phone.query.filter_by(number=number).first()
+
+    #Checks if user matches phone in db
+    if existing_phone:
+        if existing_phone.user.name == name:
+            user = User.query.filter_by(name=name).first()
+            session["user_id"] = user.user_id
+            msg['msg'] = 'okay'
+
+        else: 
+            msg['msg']= 'name not with number'
+            # flash("This phone is registered to another name, please try again!")
+    else:
+        msg['msg'] = 'not registered'
+        # flash("We do not have your number registered. Please register!")
+        
+    # print(name)
+    # print(number)
+    # print(existing_phone)
+    # print(existing_phone.user.name)
+    return jsonify(msg)
 
 @app.route('/register-form')
 def show_registration_form():
@@ -85,38 +114,26 @@ def show_registration_form():
 def show_default_form():
     """Shows part of form for people that has a session/ already been in db. """
 
-    if 'user_id' not in session:
-        return redirect('/')
+    # if 'user_id' not in session:
+    #     return redirect('/')
 
     user_id = session['user_id']
-    e_id = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
-        E_Contact.e_id)).first().e_id
 
-    #Gets the last recorded items in the db
-    last_ename = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
-        E_Contact.e_id)).first().e_name
-    
-    #Gets last emergency number from above emergency contact
-    last_enumber = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
-        E_Phone.ephone_id)).first().e_number
+    user = User.query.options(
+        db.joinedload('phones')
+    ).options(db.joinedload('e_contacts')
+    ).options(db.joinedload('activities')
+    ).filter_by(user_id=user_id).first()
 
-    last_details = Activity.query.filter_by(user_id=user_id).order_by(desc(
-        Activity.activity_id)).first().details
-    last_time = Activity.query.filter_by(user_id=user_id).order_by(desc(
-        Activity.activity_id)).first().time
-
+    e_id = user.e_contacts[-1].e_id
+    last_ename = user.e_contacts[-1].e_name
+    last_enumber = user.e_contacts[-1].e_phones[-1].e_number
+    last_details = user.activities[-1].details
+    last_time = user.activities[-1].time
     split_time = last_time.split(":")
     hours = split_time[0]
     minutes = split_time[1]
 
-    # print(last_ename)
-    # print(last_enumber)
-    # print(last_details)
-    # print("\n\n\n")
-    # print(last_time)
-    # print(split_time)
-    # print(hours)
-    # print(minutes)
 
     return render_template("default_form.html", 
                             last_ename=last_ename,
@@ -169,6 +186,25 @@ def reset_emergency_contact():
 
     return redirect('/default-form')
 
+@app.route('/check-ec-contact.json')
+def check_ec_contact():
+
+    user_id = session["user_id"]
+    user = User.query.get(user_id)
+
+    ename = request.values.get("ename")
+    enum = request.values.get("enumber")
+
+    existing_ephone = E_Phone.query.filter_by(e_number=e_number).first()
+
+    msg = {}
+
+    if existing_ephone:
+        msg['msg'] = 'existing'
+    
+    return jsonify(msg)
+
+
 @app.route('/new-user-success', methods=['POST'])
 def show_new_user_text():
 
@@ -196,6 +232,8 @@ def show_new_user_text():
     minutes = int(request.form.get("minutes"))
     time = f"{hours}:{minutes}" 
 
+    formatted_num = number[:3] + "-" + number[3:6] + "-" + number[6:]
+    num_for_twilio = "+1" + number
     
     user.add_econtact(e_name)
     e_name = E_Contact.query.filter_by(e_name=e_name).first()
@@ -207,15 +245,20 @@ def show_new_user_text():
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
 
+    #Retrieving location from ajax request
+    lat = request.values.get("lat")
+    lng = request.values.get("lng")
+    # user.add_location(lat,lng)
+
     #Example texts to user and emergency texts
     okay_text = write_okay_text(user_name) 
-    check_text = write_ec_text(user_name, e_contact, details, number)
+    check_text = write_ec_text(user_name, e_contact, details, number, lat, lng)
 
     #Sends the "Are you okay" text at the specific time said in form
     schedule_check_text_time(hours, minutes, user_name, num_for_twilio)
 
     #Add user_id to check_text table to false because no text received yet
-    user.add_check_text("false")
+    user.add_check_text(False)
 
 
     return render_template("new_user_success.html",
@@ -226,7 +269,10 @@ def show_new_user_text():
                             details=details,
                             datetime_time=datetime_time,
                             okay_text=okay_text,
-                            check_text=check_text)
+                            check_text=check_text,
+                            GOOGLE_KEY=GOOGLE_KEY,
+                            lat=lat,
+                            lng=lng)
 
 
 @app.route('/returning-user-success', methods=['POST'])
@@ -258,21 +304,31 @@ def show_returning_user_text():
 
     #Always add activity, even if it has been used before
     user.add_activity(details, time)
+
+    #Retrieve lat, long and add to database
+    lat = request.values.get("lat")
+    lng = request.values.get("lng")
+    print("\n\n\n")
+    print("LAT", lat)
+    print("LNG", lng)
+
+    user.add_location(lat,lng)
     
     #To show example of texts on html page
     okay_text = write_okay_text(user_name) 
-    check_text = write_ec_text(user_name, last_ename, details, number)
+    check_text = write_ec_text(user_name, last_ename, details, number, lat, lng)
 
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
 
     num_for_twilio = "+1" + phone
 
+
     #Sends the "Are you okay" text at the specific time said in form
     schedule_check_text_time(hours, minutes, user_name, num_for_twilio)
 
     #Add user_id to check_text table to false because no text received yet
-    user.add_check_text("false")
+    user.add_check_text(False)
     
 
     return render_template("returning_success.html",
@@ -283,7 +339,22 @@ def show_returning_user_text():
                             okay_text=okay_text,
                             check_text=check_text,
                             number=number,
-                            datetime_time=datetime_time)
+                            datetime_time=datetime_time,
+                            GOOGLE_KEY=GOOGLE_KEY,
+                            lat=lat,
+                            lng=lng)
+
+@app.route('/get-location-data', methods = ['POST'])
+def get_js_data():
+
+    #Retrieve lat, long and add to database
+    lat = request.form["lat"]
+    lng = request.form["lng"]
+    print("\n\n\n")
+    print("LAT", lat)
+    print("LNG", lng)
+
+    return lat 
 
 @app.route('/sms', methods=['GET','POST'])
 def sms():
@@ -306,13 +377,12 @@ def sms():
 
     
     #change db row to true 
-    check_status.true_false = "true"
+    check_status.true_false = True
     db.session.commit()
 
     resp = MessagingResponse()
     resp.message("Glad you are okay! Thank you for using Stay Safe.")
     return str(resp)
-
 
 
 @app.route('/logout')
@@ -324,12 +394,11 @@ def logout():
         
 
 
-
 if __name__ == "__main__":
 
-    schedule.every(15).seconds.do(check_time)
+    schedule.every(20).seconds.do(check_time)
 
-    app.debug = True
+    
     
     app.jinja_env.auto_reload = app.debug
 
@@ -338,6 +407,7 @@ if __name__ == "__main__":
     DebugToolbarExtension(app)
 
     schedule.run_continuously(1)
+    app.debug = True
 
     app.run(port=5000, host='0.0.0.0')
 

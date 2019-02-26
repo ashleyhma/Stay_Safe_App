@@ -2,7 +2,7 @@
 {% block content %}
 <div>
     <h1>Change Emergency Contact </h1>
-    <form action="/change-emergency-contact" method="POST">
+    <form action="/change-emergency-contact" method="POST" id="change_ec_form">
         Emergency Contact Name: <input type="text" name="ename">
         <br>
         Emergency Contact Number: <input type="text" name="enum">
@@ -12,6 +12,7 @@
 </div>
 
 <a href="/default-form"> Click here to go back to default form</a>
-
+<script src="http://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="/static/form_alerts.js"></script>
 
 {% endblock %}

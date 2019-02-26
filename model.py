@@ -55,6 +55,12 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
+    def add_location(self, lat, lng):
+        location = Location(lat=lat, lng=lng)
+        self.locations.append(location)
+
+        db.session.add(self)
+        db.session.commit()
 
     def __repr__(self):
 
@@ -147,7 +153,7 @@ class Check_Text(db.Model):
 
     text_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
-    true_false = db.Column(db.String(6), nullable=True)
+    true_false = db.Column(db.Boolean, nullable=False)
 
     user = db.relationship("User",
                             backref="check_texts")
@@ -155,6 +161,28 @@ class Check_Text(db.Model):
     def __repr__(self):
 
         return f"<Id={self.text_id} user_id={self.user_id} T/F={self.true_false}>"
+
+
+class Location(db.Model):
+    """Storing location of user from Google Maps API."""
+
+    __tablename__ = "locations"
+
+    location_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    lat = db.Column(db.Float, nullable=True)
+    lng = db.Column(db.Float, nullable=True)
+
+
+    user = db.relationship("User",
+                            backref="locations")
+
+
+    def __repr__(self):
+
+        return f"<ID={self.location_id} user_id={self.user_id} lat={self.lat} long={self.lng}"
+
+
 
 
 

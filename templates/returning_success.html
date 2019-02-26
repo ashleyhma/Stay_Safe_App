@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<script src="http://code.jquery.com/jquery.js"></script>
+
 <h1> Thank you for using Stay Safe! </h1>
 
 <p> <h3>Make sure you entered the right information! This is what we have: </h3>
@@ -20,7 +22,23 @@
     {{ check_text }}
 </p>
 
+<p> Here is your location!</p>
+<div id="map"> </div>
+    <style>
+        #map {
+
+            height: 400px;
+            width: 400px;
+
+        }
+    </style>
+
 <a href="/default-form"> Click here to go back to default form</a>
 
+<script src="http://code.jquery.com/jquery.js"></script>
 
+<script src="/static/google_maps.js"></script>
+<script async defer
+src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_KEY }}&callback=initMap">
+</script>
 {% endblock %}
