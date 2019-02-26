@@ -9,10 +9,10 @@ from sqlalchemy.exc import IntegrityError
 from flask_debugtoolbar import DebugToolbarExtension
 from model import *
 from schedule_texts import *
-import datetime
-import time
+import datetime, time, googlemaps
 from twilio import twiml
 from twilio.twiml.messaging_response import MessagingResponse 
+
 
 
 
@@ -36,7 +36,7 @@ def homepage():
         return redirect('/default-form')
  
     #Else show homepage
-    return render_template("homepage.html")
+    return render_template("index.html")
 
 
 @app.route('/', methods=["POST"])
@@ -306,17 +306,21 @@ def show_returning_user_text():
     user.add_activity(details, time)
 
     #Retrieve lat, long and add to database
-    lat = request.values.get("lat")
-    lng = request.values.get("lng")
-    print("\n\n\n")
-    print("LAT", lat)
-    print("LNG", lng)
+    # lat = request.form.get("lat")
+    # lng = request.form.get("lng")
+    # # pos = request.form.get("pos")
+    # # results = request.form.get("results")
 
-    user.add_location(lat,lng)
+    # print("\n\n\n")
+    # print("LAT", lat)
+    # print("LNG", lng)
+    # print("pos", pos)
+    # print("results", results)
+    # user.add_location(lat,lng)
     
     #To show example of texts on html page
     okay_text = write_okay_text(user_name) 
-    check_text = write_ec_text(user_name, last_ename, details, number, lat, lng)
+    check_text = write_ec_text(user_name, last_ename, details, number)
 
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
@@ -341,20 +345,28 @@ def show_returning_user_text():
                             number=number,
                             datetime_time=datetime_time,
                             GOOGLE_KEY=GOOGLE_KEY,
-                            lat=lat,
-                            lng=lng)
+                            )
 
-@app.route('/get-location-data', methods = ['POST'])
+@app.route('/get-location-data')
 def get_js_data():
 
+    user_id = session['user_id']
+    user = User.query.get(user_id)
+
     #Retrieve lat, long and add to database
-    lat = request.form["lat"]
-    lng = request.form["lng"]
+    lat = request.args.get("lat")
+    lng = request.args.get("lng")
+
+    user.add_location(lat,lng)
+
     print("\n\n\n")
     print("LAT", lat)
     print("LNG", lng)
+    print("hellooooo")
 
-    return lat 
+    return render_template("data.html",
+                            lat=lat,
+                            lng=lng)
 
 @app.route('/sms', methods=['GET','POST'])
 def sms():

@@ -5,6 +5,7 @@
 // $("<h1>Include this using jquery</h1>").appendTo("body");
 // console.log($("body").html());
 
+
 var map, infoWindow;
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -15,15 +16,18 @@ function initMap() {
 
   // Try HTML5 geolocation.
   if (navigator.geolocation) {
+
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
         lat: position.coords.latitude,
         lng: position.coords.longitude
       };
+      console.log(typeof(pos));
+      console.log(pos);
 
-      console.log(pos.lat)
-      console.log(pos.lng)
-      
+      $.get('/get-location-data', pos, (results) => {
+      console.log(typeof(pos));
+      });
 
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
@@ -32,6 +36,20 @@ function initMap() {
     }, function() {
       handleLocationError(true, infoWindow, map.getCenter());
     });
+    
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, infoWindow, map.getCenter());
+  }
+}
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(browserHasGeolocation ?
+                        'Error: The Geolocation service failed.' :
+                        'Error: Your browser doesn\'t support geolocation.');
+  infoWindow.open(map);
+}
 
 
     // $.post('/get-location-data', {
@@ -43,31 +61,8 @@ function initMap() {
     // $.post('/returning-user-success', pos, (results) => {
     // console.log(results)
     // console.log(results)
-    // });
 
-  } else {
-    // Browser doesn't support Geolocation
-    handleLocationError(false, infoWindow, map.getCenter());
-  }
 
-  
-      
-  
-}
 
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-  infoWindow.setPosition(pos);
-  infoWindow.setContent(browserHasGeolocation ?
-                        'Error: The Geolocation service failed.' :
-                        'Error: Your browser doesn\'t support geolocation.');
-  infoWindow.open(map);
-}
-
-function addMarker(icon, position, title, map) {
-  const marker = new google.maps.Marker({position, map, title, icon});
-
-  return marker;
-
-}
 
 

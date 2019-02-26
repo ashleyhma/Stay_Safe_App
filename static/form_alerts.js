@@ -9,8 +9,8 @@ $('#login-form').on('submit', (evt) => {
     name: $('#name').val(),
     number: $('#number').val()
   };
-  console.log(phoneNumbers.name);
-  console.log(phoneNumbers.number);
+  // console.log(phoneNumbers.name);
+  // console.log(phoneNumbers.number);
 
   $.get('/check-phone-num.json', phoneNumbers, (results) => {
       console.log(results);
@@ -34,7 +34,12 @@ $('#change_ec_form').on('submit', (evt) => {
   evt.preventDefault();
 
   const phoneNumbers = {
-    
+    number: $('#number').val()
   }
+  $.get('check-ec-contact.json', phoneNumbers, (results) => {
+    if (results.msg == 'existing'){
+      alert("This phone number already exists, please try again")
+    }
+  })
 })
 
