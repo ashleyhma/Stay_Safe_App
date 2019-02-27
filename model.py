@@ -55,8 +55,8 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def add_location(self, lat, lng):
-        location = Location(lat=lat, lng=lng)
+    def add_location(self, lat, lng, address):
+        location = Location(lat=lat, lng=lng, address=address)
         self.locations.append(location)
 
         db.session.add(self)
@@ -172,6 +172,7 @@ class Location(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     lat = db.Column(db.Float, nullable=True)
     lng = db.Column(db.Float, nullable=True)
+    address = db.Column(db.String(100), nullable=True)
 
 
     user = db.relationship("User",
@@ -180,7 +181,7 @@ class Location(db.Model):
 
     def __repr__(self):
 
-        return f"<ID={self.location_id} user_id={self.user_id} lat={self.lat} long={self.lng}"
+        return f"<ID={self.location_id} user_id={self.user_id} lat={self.lat} long={self.lng} address={self.address}"
 
 
 

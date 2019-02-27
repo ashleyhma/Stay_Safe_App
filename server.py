@@ -169,7 +169,7 @@ def reset_emergency_contact():
     #If they try to add a new name with an existing ephone, tell them to try again
     if existing_ephone:
         flash("This phone number already exists, please try again")
-        return redirect("/reset_emergency_contact")
+        return redirect("/change-emergency-contact")
 
     #Else if the user has this econtact, add the number to this econtact
     elif user.check_econtact(e_name): 
@@ -193,16 +193,25 @@ def check_ec_contact():
     user = User.query.get(user_id)
 
     ename = request.values.get("ename")
-    enum = request.values.get("enumber")
+    enumber = request.values.get("enumber")
 
-    existing_ephone = E_Phone.query.filter_by(e_number=e_number).first()
+    existing_ephone = E_Phone.query.filter_by(e_number=enumber).first()
+    
 
-    msg = {}
+    print("\n\n\n")
+    print("hello")
+    print(existing_ephone)
+    print(ename)
+    print(enumber)
+
+    emsg = {}
 
     if existing_ephone:
-        msg['msg'] = 'existing'
-    
-    return jsonify(msg)
+        e_contact = existing_ephone.e_contacts.e_name
+        if e_contact != ename:
+            emsg['msg'] = 'existing'
+    print(emsg)
+    return jsonify(emsg)
 
 
 @app.route('/new-user-success', methods=['POST'])
@@ -245,14 +254,13 @@ def show_new_user_text():
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
 
-    #Retrieving location from ajax request
-    lat = request.values.get("lat")
-    lng = request.values.get("lng")
-    # user.add_location(lat,lng)
+    # #Retrieves address from db
+    # address = user.locations[-1].address
+    addres = None
 
     #Example texts to user and emergency texts
     okay_text = write_okay_text(user_name) 
-    check_text = write_ec_text(user_name, e_contact, details, number, lat, lng)
+    check_text = write_ec_text(user_name, e_contact, details, number, address)
 
     #Sends the "Are you okay" text at the specific time said in form
     schedule_check_text_time(hours, minutes, user_name, num_for_twilio)
@@ -261,7 +269,7 @@ def show_new_user_text():
     user.add_check_text(False)
 
 
-    return render_template("new_user_success.html",
+    return render_template("success.html",
                             user_name=user_name,
                             number=number,
                             e_name=e_contact,
@@ -271,8 +279,8 @@ def show_new_user_text():
                             okay_text=okay_text,
                             check_text=check_text,
                             GOOGLE_KEY=GOOGLE_KEY,
-                            lat=lat,
-                            lng=lng)
+                            address=address
+                            )
 
 
 @app.route('/returning-user-success', methods=['POST'])
@@ -286,14 +294,9 @@ def show_returning_user_text():
     number = phone[:3] + "-" + phone[3:6] + "-" + phone[6:]
 
     #Gets the last recorded items in the db FOR RETURNING USER
-    last_econtact = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
-        E_Contact.e_id)).first()
-    last_ename = last_econtact.e_name
-    
-    #Gets last emergency contact number for above emergency contact
-    e_id = last_econtact.e_id
-    last_enumber = E_Phone.query.filter_by(e_id=e_id).order_by(desc(
-        E_Phone.ephone_id)).first().e_number
+    e_id = user.e_contacts[-1].e_id
+    last_ename = user.e_contacts[-1].e_name
+    last_enumber = user.e_contacts[-1].e_phones[-1].e_number
 
 
     #Retrieves db data from form
@@ -302,25 +305,16 @@ def show_returning_user_text():
     minutes = int(request.form.get("minutes"))
     time = f"{hours}:{minutes}"
 
+    # #Retrieves address from db
+    # address = user.locations[-1].address
+    address = None
+
     #Always add activity, even if it has been used before
     user.add_activity(details, time)
-
-    #Retrieve lat, long and add to database
-    # lat = request.form.get("lat")
-    # lng = request.form.get("lng")
-    # # pos = request.form.get("pos")
-    # # results = request.form.get("results")
-
-    # print("\n\n\n")
-    # print("LAT", lat)
-    # print("LNG", lng)
-    # print("pos", pos)
-    # print("results", results)
-    # user.add_location(lat,lng)
     
     #To show example of texts on html page
     okay_text = write_okay_text(user_name) 
-    check_text = write_ec_text(user_name, last_ename, details, number)
+    check_text = write_ec_text(user_name, last_ename, details, number, address)
 
     #Changing int time to datetime time for text use
     datetime_time = datetime.time(hours, minutes)
@@ -333,23 +327,26 @@ def show_returning_user_text():
 
     #Add user_id to check_text table to false because no text received yet
     user.add_check_text(False)
+
+
     
 
-    return render_template("returning_success.html",
+    return render_template("success.html",
                             user_name=user_name,
-                            last_ename=last_ename,
-                            last_enumber=last_enumber,
+                            number=number,
+                            e_name=last_ename,
+                            e_number=last_enumber,
                             details=details,
+                            datetime_time=datetime_time,
                             okay_text=okay_text,
                             check_text=check_text,
-                            number=number,
-                            datetime_time=datetime_time,
                             GOOGLE_KEY=GOOGLE_KEY,
+                            address=address
                             )
 
 @app.route('/get-location-data')
 def get_js_data():
-
+    gmaps = googlemaps.Client(os.environ.get('GOOGLE_KEY'))
     user_id = session['user_id']
     user = User.query.get(user_id)
 
@@ -357,16 +354,22 @@ def get_js_data():
     lat = request.args.get("lat")
     lng = request.args.get("lng")
 
-    user.add_location(lat,lng)
+    if lat:
+        result = gmaps.reverse_geocode(latlng=(lat, lng))
+        address = result[0]['formatted_address']
 
-    print("\n\n\n")
+        user.add_location(lat, lng, address)
+    
+    print("\n\n\n\n")
     print("LAT", lat)
     print("LNG", lng)
-    print("hellooooo")
-
+    # print("address", address[0]['formatted_address'])
+    print("\n\n")
     return render_template("data.html",
                             lat=lat,
-                            lng=lng)
+                            lng=lng,
+                            address=address)
+
 
 @app.route('/sms', methods=['GET','POST'])
 def sms():

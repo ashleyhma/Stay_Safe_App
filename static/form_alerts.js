@@ -33,13 +33,19 @@ $('#login-form').on('submit', (evt) => {
 $('#change_ec_form').on('submit', (evt) => {
   evt.preventDefault();
 
-  const phoneNumbers = {
-    number: $('#number').val()
+  const eNumbers = {
+    ename: $('#ename').val(),
+    enumber: $('#enumber').val()
   }
-  $.get('check-ec-contact.json', phoneNumbers, (results) => {
-    if (results.msg == 'existing'){
-      alert("This phone number already exists, please try again")
+  $.get('/check-ec-contact.json', eNumbers, (results) => {
+    console.log(results.emsg);
+    if (results.emsg == 'existing'){
+      alert("This phone number already exists, please try again");
+    } else {
+      window.location.replace("/default-form");
+
     }
-  })
-})
+    
+  });
+});
 

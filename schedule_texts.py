@@ -75,25 +75,24 @@ def schedule_check_text_time(hour, minutes, user_name, number):
     schedule.every().day.at(time).do(send_check_text, user_name=user_name, number=number).tag('first_text')
 
 
-def write_ec_text(user_name, e_name, details, number, lat=None, lng=None):
+def write_ec_text(user_name, e_name, details, number, address=None):
     """Writes up specific text to emergency contact."""
 
-    if lat == None:
+    if address == None:
         return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, 
         I might have not made it to my destination. Please give me a call at {number}."""  
     else:
         return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, 
-        I might have not made it to my destination. My last location is at latitutde: {lat}, 
-        longitude: {lng}. Please give me a call at {number}."""  
+        I might have not made it to my destination. My last location is at {address} Please give me a call at {number}."""  
 
 
-def send_ec_text(user_name, e_name, details, number, e_number, lat=None, lng=None):
+def send_ec_text(user_name, e_name, details, number, e_number, address=None):
     """Sends emergency contact text using Twilio."""
 
     print("Sending Text to Emergency Contact")
 
     client = Client(account_sid, auth_token)
-    text = write_ec_text(user_name, e_name, details, number, lat, lng)
+    text = write_ec_text(user_name, e_name, details, number, address)
 
     message = client.messages.create(
                         body=text,
@@ -107,8 +106,7 @@ def send_ec_text(user_name, e_name, details, number, e_number, lat=None, lng=Non
     return schedule.CancelJob
 
 
-def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number, 
-    e_number, lat=None, lng=None):
+def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number, e_number, address):
     """Check for the time that the emergency contact text will be sent out"""
 
     # #Adding 5 minutes to check time
@@ -158,7 +156,7 @@ def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number,
 
     schedule.every().day.at(time).do(send_ec_text, user_name=user_name, 
         e_name=e_name, details=details, number=number, e_number=e_number, 
-        lat=lat, lng=lng)
+        address=address)
 
 
 
@@ -240,55 +238,42 @@ def check_time():
         user_id = user.user_id
         user_name = user.name
 
-        # phone = User_Phone.query.filter_by(user_id=user_id).first().phone
+        
         phone = user.phones[-1].number
 
-        # e_name = E_Contact.query.filter_by(user_id=user_id).order_by(desc(
-        # E_Contact.e_id)).first().e_name
         e_name = user.e_contacts[-1].e_name
         e_number = user.e_contacts[-1].e_phones[-1].e_number
         formatted_enum = "+1" + e_number
 
-        # details = Activity.query.filter_by(user_id=user_id).order_by(desc(
-        # Activity.activity_id)).first().details
         activity = user.activities[-1]
         details = activity.details
 
-        #retrieve each user's last 'time'
-        # time = Activity.query.filter_by(user_id=user_id).order_by(desc(Activity.activity_id)).first().time
         time = activity.time
         split_time = time.split(":")
         hours = int(split_time[0])
         minutes = int(split_time[1])
 
         if user.locations:
-            lat = user.locations[-1].lat 
-            lng = user.locations[-1].lng 
+            address = user.locations[-1].address
+            
         else: 
-            lat = None
-            lng = None
+            address = None
 
         #Add 5 min to check time, but 1 min for TESTING
         changed_wait_time = change_to_wait_time(hours, minutes)
 
-        # check_status = Check_Text.query.filter_by(user_id=user_id).first()
         check_status = user.check_texts[-1]
         
         t_or_f = check_status.true_false
 
-
-         #If it is the right time, then clear scheduler
+        #If it is the right time, then clear scheduler
         if changed_wait_time in now_time:
-            # print("\n\n\n\n")
-            # print("CHANGED TIME", changed_wait_time)
-            # print("NOW",now_time)
-            # print("T OR F", t_or_f)
-            # schedule.clear('first_text')
+
             #If user did not respond, send to emergency contact
             if t_or_f == False:
                 # print("AFTER, T OR F", t_or_f)
                 schedule_ec_text_time(hours, minutes, user_name, e_name, details, 
-                    phone, formatted_enum, lat, lng)  
+                    phone, formatted_enum, address)  
 
                 #delete row
                 Check_Text.query.filter_by(user_id=user_id).delete()
