@@ -1,35 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h1><center> Let's Keep Each Other Safe </h1>
+<div id="root"/> 
 
-<h5> <center>Enter your information here if you have registered before:</h5></center>
-<p class="form"><center>
-
-
-    <form action="/" method="POST" id="login-form">
-        
-            Enter Full Name: 
-            <br>
-            <input type="text" name="name" id="name">
-            <br>
-
-        
-            Phone Number:
-            <br>
-            <input type="text" name="number" id="number">
-            <br>
-
-            <input type="submit" name="Submit" id="submit-login-form">
-    </form>
-</p>
-
-<p> <a href="/register-form">Click here to register!</a></p>
-</center>
 
 <script src="http://code.jquery.com/jquery.js"></script>
-<script type="text/javascript" src="/static/form_alerts.js"></script>
+<script type="text/javascript" src="/static/js/form_alerts.js"></script>
 <script src="http://unpkg.com/babel-standalone"></script>
-<script src="homepage.jsx" type="text/jsx"></script>
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="static/js/homepage.jsx" type="text/jsx"></script>
+
+
 
 {% endblock %}
+

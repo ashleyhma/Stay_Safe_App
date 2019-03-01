@@ -4,3 +4,4 @@ __pycache__
 secrets.sh
 ngrok
 linux_ngrok
+.DS_Store

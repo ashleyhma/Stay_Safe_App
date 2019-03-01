@@ -96,10 +96,6 @@ def check_phone_num():
         msg['msg'] = 'not registered'
         # flash("We do not have your number registered. Please register!")
         
-    # print(name)
-    # print(number)
-    # print(existing_phone)
-    # print(existing_phone.user.name)
     return jsonify(msg)
 
 @app.route('/register-form')
@@ -196,13 +192,6 @@ def check_ec_contact():
     enumber = request.values.get("enumber")
 
     existing_ephone = E_Phone.query.filter_by(e_number=enumber).first()
-    
-
-    print("\n\n\n")
-    print("hello")
-    print(existing_ephone)
-    print(ename)
-    print(enumber)
 
     emsg = {}
 
@@ -375,14 +364,9 @@ def get_js_data():
 def sms():
     """Receives texts"""
 
-    # import pdb; pdb.set_trace()
-
     #Requests the from number and the message
     from_number = request.form['From']
     message_body = request.form['Body']
-
-    # print(from_number)
-    # print(message_body)
    
     user = db.session.query(User).join(User_Phone).filter(User_Phone.number == from_number[2:]).first()
     user_id = user.user_id
@@ -390,7 +374,6 @@ def sms():
     #Gets status of object. "True" or "False" if its been received
     check_status = Check_Text.query.filter_by(user_id=user_id).first()
 
-    
     #change db row to true 
     check_status.true_false = True
     db.session.commit()
@@ -413,15 +396,13 @@ if __name__ == "__main__":
 
     schedule.every(20).seconds.do(check_time)
 
-    
-    
-    app.jinja_env.auto_reload = app.debug
-
     connect_to_db(app)
 
     DebugToolbarExtension(app)
 
     schedule.run_continuously(1)
+    
+    app.jinja_env.auto_reload = app.debug
     app.debug = True
 
     app.run(port=5000, host='0.0.0.0')
