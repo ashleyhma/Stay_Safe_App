@@ -26,7 +26,6 @@ $('#login-form').on('submit', (evt) => {
         window.location.replace("/default-form")
         console.log(evt.target);
       } 
-
   });
 });
 

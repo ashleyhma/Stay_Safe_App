@@ -1,44 +1,44 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
-
 <h1> Thank you for using Stay Safe! </h1>
 
-<p> <h3>Make sure you entered the right information! This is what we have: </h3>
-    Your Number: {{ number }}
-    <br>
-    Emergency Contact: {{ e_name }}
-    <br>
-    Emergency Contact Number: {{ e_number }}
-    <br>
-    Check Time: {{ datetime_time }}
+      <p> <h3>Make sure you entered the right information! This is what we have: </h3>
+          Your Number: {{ number }}
+          <br/>
+          Emergency Contact: {{ e_name }}
+          <br/>
+          Emergency Contact Number: {{ e_number }}
+          <br/>
+          Check Time: {{ datetime_time }}
+      
+      
+      <p> <h4>This is the text that we will send you at {{ datetime_time }}:</h4>
+          {{ okay_text }}
+      </p>
+      <p> <h4> This is the text that will send to your emergency contact if you do not respond 5 min after {{ datetime_time }}:</h4>
+          {{ check_text }}
+      </p>
+      
+      <p> Here is your location!</p>
+      <div id="map"> </div>
+          <style>
+              #map {
+      
+                  height: 400px;
+                  width: 400px;
+      
+              }
+          </style>
+
+<div id="success"/>
 
 
-<p> <h4>This is the text that we will send you at {{ datetime_time }}:</h4>
-    {{ okay_text }}
-</p>
-<p> <h4> This is the text that will send to your emergency contact if you do not respond 5 min after {{ datetime_time }}:</h4>
-    {{ check_text }}
-</p>
 
-<p> Here is your location!</p>
-<div id="map"> </div>
-    <style>
-        #map {
-
-            height: 400px;
-            width: 400px;
-
-        }
-    </style>
-
-<a href="/default-form"> Click here to go back to default form</a>
-
-<script src="http://code.jquery.com/jquery.js"></script>
 
 <script src="/static/js/google_maps.js"></script>
 <script async defer
 src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_KEY }}&callback=initMap">
-</script>
+<script src="static/js/success.jsx" type="text/jsx"></script>
+
 {% endblock %}

@@ -1,134 +1,88 @@
-class TextInput extends React.Component {
+class Mainform extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      last_details: 'supposed to show last activity',
+      last_hour: 'Last Hour',
+      last_mins: 'LastMin'
+    };
+
+    this.onActivityChange = this.onActivityChange.bind(this)
+    this.onHourChange = this.onHourChange.bind(this)
+    this.onMinChange = this.onMinChange.bind(this)
+  }
+
+  componentDidMount() {
+    $.get("/default-form.json", results => {
+      console.log(results)
+      this.setState({ 
+        e_id: results.e_id,
+        last_ename: results.last_ename,
+        last_enumber: results.last_enumber,
+        last_details: results.last_details,
+        last_hour: results.last_hours,
+        last_mins: results.last_mins
+      });
+    });
+  }
+
+  onActivityChange(evt){
+    this.setState({last_details: evt.target.value});
+  }
+
+  onHourChange(evt){
+    this.setState({last_hour: evt.target.value});
+  }
+
+  onMinChange(evt){
+    this.setState({last_mins: evt.target.value});
+  }
+
   render() {
+    const hours = [];
+    for (let i = 0; i < 24; i += 1) {
+      hours.push(<option key={i} value={i}>{i}</option>);
+    }
+
+    const mins = [];
+    for (let i = 0; i < 59; i += 1) {
+      mins.push(<option key={i} value={i}>{i}</option>);
+    }
+
     return (
-      <input
-        type="text"
-        name={this.props.name}
-        id={this.props.id}
-        onChange={this.props.onChange}
-        value={this.props.value}
-      />
+      <div>
+        <h1> Please enter your information </h1>
+        <h3>If you don't check in, we will alert your default emergency contact:</h3>
+        Emergency Contact: { this.state.last_ename} ({ this.state.last_enumber }) <br/> <br/>
+
+          <form action="/returning-user-success" method="POST">
+            New Activity:
+            <TextInput
+              name="details"
+              id="details"
+              onChange={this.onActivityChange}
+              value={this.state.last_details}
+              
+            />
+            <br/><br/>
+            HR:
+            <select name="hours" value={this.state.last_hour} onChange={this.onHourChange}>
+              {hours}
+            </select>
+            MIN:
+            <select name="minutes" value={this.state.last_mins} onChange={this.onMinChange}>
+              {mins}
+            </select><br/><br/>
+            <input type="submit" name="submit"/>
+          </form><br/><br/><br/>
+        <a href="/change-emergency-contact">Change Emergency Contact Here</a>
+      </div>
     );
   }
 }
 
-class Mainform extends React.Component {
-  constructor() {
-    super(props);
-    this.state = {
-      inputECName: 'Last EC',
-      inputECNum: 'Last EC Num'
-      inputActivity: 'Last Activity'
-      inputTime: 'Last Time'
-    };
-
-    this.onECNameChange = this.onECNameChange.bind(this);
-  this.onNumChange = this.onNumChange.bind(this);
-
-  }
-
-  onECNameChange(evt) {
-    this.setState({inputECName: evt.target.value});
-  }
-
-  onECNumChange(evt) {
-    this.setState({inputECNum: evt.target.value});
-  }
-
-  onActivityChange(evt) {
-    this.setState({inputActivity: evt.target.value});
-  }
-
-  onTimeChange(evt) {
-    this.setState({inputTime: evt.target.value});
-  }
-
-  render() {
-    return (
-      <div>
-        <h1> Default Form </h1>
-
-        <h3>If you don't check in, we will alert your default emergency contact:</h3>
-        <h5> ( This is the last used emergency contact )</h5>
-
-        <p>Emergency Contact: {{ last_ename }} ( {{ last_enumber }}) </p><br/>
-          <form action="/returning-user-success" method="POST">
-            New Activity: 
-            <input type="text" name="details" value="{{ last_details }}"><br/>
-
-            HR:
-            <select name="hours" id="hours">
-              <option value=" {{ hours }}"> {{ hours }} </option>
-                {% for i in range(24) %}
-                  <option value=" {{ i }} "> {{ i }}</option>  
-                {% endfor %}
-            </select>
-            MIN:
-            <select name ="minutes" id="minutes">
-              <option value="{{ minutes }}"> {{ minutes }}</option>
-                {% for i in range(60) %}
-                  <option value=" {{ i }}"> {{ i }}</option>
-                {% endfor %}
-            </select><br/><br/>
-            <input type="submit" name="submit">
-          </form><br/><br/><br/>
-        <a href="/change-emergency-contact">Change Emergency Contact Here</a>
-      </div>
-
-    )
-  }
-
-}
-
-  
-
 
 ReactDOM.render(
-    <Mainform />,
-    document.getElementById('main')
-  );
-
-
-{/* // import React from 'react';
-// import { Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap'; */}
-
-{/* // export default class Example extends React.Component {
-//   render() {
-//     return (
-//       <Form>
-//         <FormGroup>
-//           <Label for="emergencyContact">Emergency Contact</Label>
-//           <Input type="ecName" name="ecName" id="ecName" placeholder="NAME"></Input>
-//         </FormGroup>
-//         <FormGroup>
-//         <Label for="emergencyContactNumber">Emergency Contact Number</Label>
-//           <Input type="ecNum" name="ecNum" id="ecNum" placeholder="NUM"></Input>
-//         </FormGroup>
-//         <FormGroup>
-//         <Label for="Activity">Activity</Label>
-//           <Input type="activity" name="activity" id="activity" placeholder="ACTIVITY"></Input>
-//         </FormGroup>
-//         <FormGroup>
-//           <Label for="Hour">Hour</Label>
-//           <Input type="select" name="hour" id="hour" multiple>
-//             <option>1</option>
-//             <option>2</option>
-//             <option>3</option>
-//             <option>4</option>
-//             <option>5</option>
-//           </Input>
-//         </FormGroup>
-//         <FormGroup>
-//           <Label for="Minutes">Minutes</Label>
-//           <Input type="select" name="min" id="min" multiple>
-//             <option>1</option>
-//             <option>2</option>
-//             <option>3</option>
-//             <option>4</option>
-//             <option>5</option>
-//           </Input>
-//         </FormGroup>
-//       </Form>
-//     );
-//   }
-// } */}
+  <Mainform />,
+  document.getElementById('root')
+);

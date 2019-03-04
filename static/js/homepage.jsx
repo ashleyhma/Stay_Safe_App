@@ -1,22 +1,8 @@
-class TextInput extends React.Component {
-  render() {
-    return (
-      <input
-        type="text"
-        name={this.props.name}
-        id={this.props.id}
-        onChange={this.props.onChange}
-        value={this.props.value}
-      />
-    );
-  }
-}
-
 class Homepage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: 'put in your name',
+      name: '',
       number: '',
     };
 
@@ -40,7 +26,6 @@ class Homepage extends React.Component {
         window.location.replace("/default-form")
         console.log(evt.target);
       } 
-
   });
   }
 

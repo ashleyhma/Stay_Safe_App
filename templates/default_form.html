@@ -1,49 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-    <h1> Default Form </h1>
-
-    <h3>If you don't check in, we will alert your default emergency contact:</h3>
-    <h5> ( This is the last used emergency contact )</h5>
-
-    Emergency Contact: {{ last_ename }} ( {{ last_enumber }})
-    <br>
-    <form action="/returning-user-success" method="POST">
-        New Activity: <input type="text" name="details" value="{{ last_details }}">
-        <br>
-
-        HR:
-        <select name="hours" id="hours">
-            <option value=" {{ hours }}"> {{ hours }} </option>
-            {% for i in range(24) %}
-                <option value=" {{ i }} "> {{ i }}</option>  
-            {% endfor %}
-        </select>
-        MIN:
-        <select name ="minutes" id="minutes">
-            <option value="{{ minutes }}"> {{ minutes }}</option>
-            {% for i in range(60) %}
-                <option value=" {{ i }}"> {{ i }}</option>
-            {% endfor %}
-        </select>
-        <br>
-        <br>
-        <input type="submit" name="submit">
-    </form>
-    <br>
-    <br>
-    <br>
-    <a href="/change-emergency-contact">Change Emergency Contact Here</a>
     <div id="root"> </div>
 
-
-<script src="http://code.jquery.com/jquery.js"></script>
-<script type="text/javascript" src="/static/js/form_alerts.js"></script>
-<script src="http://unpkg.com/babel-standalone"></script>
-<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="static/js/text_input.jsx" type="text/jsx"></script>
 <script src="static/js/main_form.jsx" type="text/jsx"></script>
-<script src="static/js/index.jsx" type="text/jsx"></script>
+
 
 
 {% endblock %}

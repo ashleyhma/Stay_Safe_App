@@ -5,3 +5,4 @@ secrets.sh
 ngrok
 linux_ngrok
 .DS_Store
+static/.DS_Store
