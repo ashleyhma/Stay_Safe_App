@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div id="ec_change"/> 
 
-<script src="static/js/text_input.jsx" type="text/jsx"></script>
-<script src="/static/js/ec_change.jsx" type="text/jsx"></script>
+ <div> 
+    <h1>Change Emergency Contact </h1>
+    <form action="/change-emergency-contact" method="POST">
+        Emergency Contact Name: <input type="text" name="ename">
+        <br>
+        Emergency Contact Number: <input type="text" name="enum">
+        <br>
+        <input type="submit" name="submit">
+    </form>
+    </div>
+    <div id="homepage"> </div>
+
 
 {% endblock %}

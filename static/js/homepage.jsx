@@ -11,7 +11,7 @@ class Homepage extends React.Component {
   }
 
   alertLogin = (evt) => {
-    evt.preventDefault
+    evt.preventDefault();
     $.get('/check-phone-num.json', this.state, (results) => {
       console.log(results);
       if (results.msg == 'name not with number'){

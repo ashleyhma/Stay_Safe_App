@@ -1,12 +1,74 @@
 {% extends 'base.html' %}
 {% block content %}
 
-    <div id="root"> </div>
+<div>
+    <!-- EMERGENCY CONTACT CHANGE MODAL -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#change_econtact">Change Emergency Contact</button>
+
+    <!-- EC CHANGE MODAL-->
+    <div class="modal fade right" id="change_econtact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-side mdoal-bottom-right" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="change_econtact">Change Emergency Contact</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form action="/change-emergency-contact" method="POST" id="change_econtact">
+                <!-- EMERGENCY NAME -->
+                <div class="form-group">
+                    <label for="ename" class="col-form-label">Emergency Contact Name:</label>
+                    <input type="text" class="form-control" id="ename" name="ename">
+                </div>
+
+                <!-- EMERGENCY NUMBER -->
+                <div class="form-group">
+                    <label for="enum" class="col-form-label">Emergency Number:</label>
+                    <input type="text" class="form-control" id="enum" name="enum">
+                </div>
+            </form>
+    
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                Close
+            </button>
+            <button type="button submit" class="btn btn-success" id="submit">
+                Submit
+            </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+
+    $('#submit').click(function(){
+        const eNumbers = {
+            ename: $('#ename').val(),
+            enumber: $('#enum').val()
+        }
+
+        $.post('/change-emergency-contact', eNumbers, (results) => {
+            $('#change_econtact').modal('hide');
+        });
+
+        window.location.replace("/default-form");
+
+    });
+    
+
+</script>
+</div>
+
+<div id='homepage'/>
 
 <script src="static/js/text_input.jsx" type="text/jsx"></script>
 <script src="static/js/main_form.jsx" type="text/jsx"></script>
-
-
 
 {% endblock %}
 

@@ -50,11 +50,12 @@ class Mainform extends React.Component {
     }
 
     return (
-      <div>
+      <div className="container-fluid">
+        
         <h1> Please enter your information </h1>
-        <h3>If you don't check in, we will alert your default emergency contact:</h3>
-        Emergency Contact: { this.state.last_ename} ({ this.state.last_enumber }) <br/> <br/>
-
+        <h3>If you don't check in, we will alert your default emergency contact:</h3> 
+          Emergency Contact: { this.state.last_ename} ({ this.state.last_enumber }) <br/> <br/>
+          
           <form action="/returning-user-success" method="POST">
             New Activity:
             <TextInput
@@ -75,8 +76,7 @@ class Mainform extends React.Component {
             </select><br/><br/>
             <input type="submit" name="submit"/>
           </form><br/><br/><br/>
-        <a href="/change-emergency-contact">Change Emergency Contact Here</a>
-      </div>
+      </div> /* render div */
     );
   }
 }
@@ -84,5 +84,5 @@ class Mainform extends React.Component {
 
 ReactDOM.render(
   <Mainform />,
-  document.getElementById('root')
+  document.getElementById('homepage')
 );

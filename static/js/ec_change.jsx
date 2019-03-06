@@ -1,9 +1,9 @@
 class EContactChange extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      e_name: '',
-      e_number: ''
+      ename: '',
+      enumber: ''
     };
 
     this.onENameChange = this.onENameChange.bind(this);
@@ -11,11 +11,12 @@ class EContactChange extends React.Component {
   }
 
   alertECChange = (evt) => {
-    evt. preventDefault
+    evt.preventDefault();
+    console.log(this.state);
     $.get('/check-ec-contact.json', this.state, (results) => {
       console.log(results);
 
-      if (results == results.msg) {
+      if (results.msg == 'This phone number already exists, please try again') {
         alert("This phone number already exists, please try again");
       } else {
         window.location.replace("/default-form");
@@ -24,35 +25,35 @@ class EContactChange extends React.Component {
   }
 
   onENameChange(evt){
-    console.log(this.state.name)
-    this.setState({ e_name: evt.target.value });
+    console.log(this.state.ename)
+    this.setState({ ename: evt.target.value });
   }
 
   onENumberChange(evt){
-    this.setState({ e_number: evt.target.value })
+    this.setState({ enumber: evt.target.value })
   }
 
   render() {
     return (
       <div>
         <h1>Change Emergency Contact </h1>
-        <form action="/change-emergency-contact" method="POST" id="change_ec_form">
+        <form action="/change-emergency-contact" method="POST" id="change_ec_form" onSubmit={this.alertECChange}>
 
           Emergency Contact Name: 
           <TextInput
-            name="e_name"
-            id="e_name"
+            name="ename"
+            id="ename"
             onChange={this.onENameChange}
-            value={this.state.eName}
+            value={this.state.ename}
           /><br/>
           Emergency Contact Number: 
           <TextInput
-            name="e_number"
-            id="e_number"
+            name="enumber"
+            id="enumber"
             onChange={this.onENumberChange}
-            value={this.state.eNumber}
+            value={this.state.enumber}
           /><br/><br/>
-          <input type="submit" name="submit"/>
+          <input type="submit" name="Submit"/>
         </form>
         <a href="/default-form"> Click here to go back to default form</a>
       </div>
@@ -60,7 +61,7 @@ class EContactChange extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <EContactChange />,
-  document.getElementById('ec_change')
-);
+// ReactDOM.render(
+//   <EContactChange />,
+//   document.getElementById('ec_change')
+// );
