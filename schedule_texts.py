@@ -1,18 +1,13 @@
-# FUNCTIONS TO SCHEDULE 
+# FUNCTIONS TO SCHEDULE TEXTS
 
-import datetime
-import time
-from pytz import timezone
-import pytz
-import schedule
+import datetime, time, os, schedule, requests
 from twilio.rest import Client
 from twilio.rest import TwilioRestClient
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
-import os
-import requests
 from model import *
 from flask_sqlalchemy import SQLAlchemy 
+
 
 #Twilio Account Information
 account_sid = os.getenv('TEST_TWILIO_ACCOUNT_SID')
@@ -20,24 +15,13 @@ auth_token = os.getenv('TEST_TWILIO_AUTH_TOKEN')
 my_number = os.getenv('MY_NUMBER')
 twilio_number = os.getenv('TEST_NUMBER')
 
-""" RUNS A JOB ONLY ONCE 
-
-def job_that_executes_once():
-    # Do some work ...
-    return schedule.CancelJob
-
-schedule.every().day.at('22:30').do(job_that_executes_once)
-
-https://schedule.readthedocs.io/en/stable/faq.html#how-can-i-run-a-job-only-once """
 
 def write_okay_text(user_name):
     """Writes up a generalized hey, are you okay? text """
 
     print(account_sid)
     print(auth_token)
-    return f"""Hi {user_name}, this is Stay Safe. Hope you are doing okay! If you do 
-    not respond within 5 minutes, we will send a text to your emergency contact."""
-
+    return f"""Hi {user_name}, this is Stay Safe. Hope you are doing okay! If you do not respond within 5 minutes, we will send a text to your emergency contact."""
 
 
 def send_check_text(user_name, number):
@@ -58,32 +42,27 @@ def send_check_text(user_name, number):
     print(text)
     print(message.sid)
 
-
     return schedule.CancelJob
 
 
 def schedule_check_text_time(hour, minutes, user_name, number):
-    """takes inputted time and keeps checking time until the right time to call 
-    the text function. """
+    """Takes inputted time and schedules the send_check_text function. """
 
     #Changes string to datetime object
     datetime_time = str(datetime.time(hour, minutes)).split(":")
     time = datetime_time[0] + ":" + datetime_time[1]
-    print(time)
  
     #Schedules are you okay text
     schedule.every().day.at(time).do(send_check_text, user_name=user_name, number=number).tag('first_text')
 
 
 def write_ec_text(user_name, e_name, details, number, address=None):
-    """Writes up specific text to emergency contact."""
+    """Writes up text to send to emergency contact."""
 
     if address == None:
-        return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, 
-        I might have not made it to my destination. Please give me a call at {number}."""  
+        return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, I might have not made it to my destination. Please give me a call at {number}."""  
     else:
-        return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, 
-        I might have not made it to my destination. My last location is at {address} Please give me a call at {number}."""  
+        return f"""Hi {e_name}, this is {user_name}. I am {details}. If you are receiving this, I might have not made it to my destination. My last location is at {address}. Please give me a call at {number}."""  
 
 
 def send_ec_text(user_name, e_name, details, number, e_number, address=None):
@@ -107,11 +86,10 @@ def send_ec_text(user_name, e_name, details, number, e_number, address=None):
 
 
 def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number, e_number, address):
-    """Check for the time that the emergency contact text will be sent out"""
+    """Adds 5 minutes to inputted time from form. Schedules emergency contact text at this time. """
 
     # #Adding 5 minutes to check time
     # wait_min = minutes + 6 
-
 
     # if wait_min == 61:
     #     later_min = 1
@@ -152,16 +130,14 @@ def schedule_ec_text_time(hour, minutes, user_name, e_name, details, number, e_n
 
     datetime_time = str(datetime.time(hour, later_min)).split(":")
     time = datetime_time[0] + ":" + datetime_time[1]
-    print(time)
 
     schedule.every().day.at(time).do(send_ec_text, user_name=user_name, 
         e_name=e_name, details=details, number=number, e_number=e_number, 
         address=address)
 
 
-
 def change_to_wait_time(hour, minutes):
-    """Change pacific time to utc time"""
+    """Changes inputted time to 5 minutes after. """
 
 
     # #Adding 5 minutes to check time
@@ -189,7 +165,6 @@ def change_to_wait_time(hour, minutes):
     #FOR TEST: Adding 1 min to check time
     wait_min = minutes + 1 
 
-
     if wait_min == 60:
         later_min = 0
         hour += 1 
@@ -206,8 +181,6 @@ def change_to_wait_time(hour, minutes):
     return time
             
 
-
-
 def check_time():
     """Checks if it is the right time (5 min after the first text sent)
         If it the value in db is false, then schedule emergency contact text."""
@@ -215,78 +188,74 @@ def check_time():
     print("checking...")
     print(schedule.jobs)
 
-    #RIGHT NOW's TIME 
+    #Current time 
     now = datetime.datetime.now()
     now_hour = now.hour
     now_minute = now.minute
     now_time = str(datetime.time(now_hour, now_minute))
 
-    #Querying everything in the check text table that isnt None 
+    #Querying all in the check text table that isnt None 
     unchecked_text_queue = Check_Text.query.options(
         db.joinedload('user').joinedload('e_contacts')
     ).options(
         db.joinedload('user').joinedload('activities')
     ).all()
 
-
-
     for check in unchecked_text_queue:
-    # while unchecked_text_queue:
-        #retrieve info for everyone in queue
         
+        #User info
         user = check.user 
         user_id = user.user_id
         user_name = user.name
 
-        
+        #User phone
         phone = user.phones[-1].number
 
+        #Emergency contact info
         e_name = user.e_contacts[-1].e_name
         e_number = user.e_contacts[-1].e_phones[-1].e_number
         formatted_enum = "+1" + e_number
 
+        #Activity info
         activity = user.activities[-1]
         details = activity.details
-
         time = activity.time
         split_time = time.split(":")
         hours = int(split_time[0])
         minutes = int(split_time[1])
 
+        #Checks if user allowed location to be sent
         if user.locations:
-            address = user.locations[-1].address
-            
+            address = user.locations[-1].address 
         else: 
             address = None
 
-        #Add 5 min to check time, but 1 min for TESTING
+        #Adds 5 min to check time, but 1 min for TESTING
         changed_wait_time = change_to_wait_time(hours, minutes)
 
+        #Checks if server has received a text from user
         check_status = user.check_texts[-1]
-        
         t_or_f = check_status.true_false
 
-        #If it is the right time, then clear scheduler
+        #Checks if it is the right time
         if changed_wait_time in now_time:
 
             #If user did not respond, send to emergency contact
             if t_or_f == False:
-                # print("AFTER, T OR F", t_or_f)
                 schedule_ec_text_time(hours, minutes, user_name, e_name, details, 
                     phone, formatted_enum, address)  
 
-                #delete row
+                #delete row in db
                 Check_Text.query.filter_by(user_id=user_id).delete()
                 db.session.commit()
                 break
+
             #if they did respond, delete their row
             else:
                 #delete row
                 Check_Text.query.filter_by(user_id=user_id).delete()
                 db.session.commit()
             
-
-
 
 if __name__ == "__main__":
 
