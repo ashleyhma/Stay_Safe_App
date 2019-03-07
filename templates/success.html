@@ -1,23 +1,41 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container">
-    <div id="success" data-is-new-user="{{ is_new_user }}"/>
-</div>
+
 
 <div class="container-fluid">
-    <!-- GOOGLE MAPS -->
-    <p> Here is your location!</p>
-    <div id="map"> </div>
-        
+    <div class="row">
+        <div class="col">
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <h1 class="display-4">Thank you for using Stay Safe! </h1>
+                    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col">
+            <div id="success" data-is-new-user="{{ is_new_user }}"></div>
+            <div id="ec_text"> </div>
+        </div>
+            
+        <div class="col">
+            <!-- GOOGLE MAPS -->
+            <h5> We will send this location to your emergency contact:</h5>
+            <br>
+            <h6> Please allow the browser to request your location.</h6>
+            <div id="map"></div>   
+        </div> 
+    </div> 
 </div>
 
 
 
-
-<script src="/static/js/success.jsx" type="text/jsx"></script>
-<script src="/static/js/google_maps.js"></script>
-<script async defer
-src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_KEY }}&callback=initMap"/>
+    <script src="/static/js/success.jsx" type="text/jsx"></script>
+    <script src="/static/js/google_maps.js"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_KEY }}&callback=initMap"/>
 
 
 

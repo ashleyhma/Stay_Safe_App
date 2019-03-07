@@ -1,10 +1,5 @@
 "use strict";
 
-// var $ = require('jQuery');
- 
-// $("<h1>Include this using jquery</h1>").appendTo("body");
-// console.log($("body").html());
-
 
 var map, infoWindow;
 function initMap() {
@@ -27,7 +22,13 @@ function initMap() {
 
       $.get('/get-location-data', pos, (results) => {
       console.log(typeof(pos));
+      console.log(results)
+      $('#ec_text').text(results.address)
       });
+
+  
+
+    
 
       infoWindow.setPosition(pos);
       infoWindow.setContent('Location found.');
@@ -51,16 +52,6 @@ function handleLocationError(browserHasGeolocation, infoWindow, pos) {
   infoWindow.open(map);
 }
 
-
-    // $.post('/get-location-data', {
-    //   lat: position.coords.latitude,
-    //   lng: position.coords.longitude
-    
-    // });
-
-    // $.post('/returning-user-success', pos, (results) => {
-    // console.log(results)
-    // console.log(results)
 
 
 
