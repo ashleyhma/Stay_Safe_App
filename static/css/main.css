@@ -14,19 +14,27 @@
   } 
    */
 
-/* .register{
-    background: -webkit-linear-gradient(left, #5fded7, #00c6ff);
-    margin-top: 3%;
-    padding: 3%;
-} */
-
-body {
-    background: -webkit-linear-gradient(left, #5fded7, #b6dff9);
+.navbar-nav.mr-auto {
+    font-weight: bold;
 }
 
-.navbar {
-    background: -webkit-linear-gradient(left, #5fded7, #b6dff9);
-    
+.footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(0,0,0,0.6);
+    color: white;
+    text-align: center;
+    padding-top: 11px;
+  }
+
+#github {
+    width: 1.9%;
+    opacity: 1 !important;
 }
 
+#linkedin {
+    width: 1.9%;
+}
 

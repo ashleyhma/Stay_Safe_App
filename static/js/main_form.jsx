@@ -50,20 +50,19 @@ class Mainform extends React.Component {
     }
 
     return (
-      <div>
+      <div className="inner">
         
         <h1> Please enter your information </h1>
         <h3>If you don't check in, we will alert your default emergency contact:</h3> 
           Emergency Contact: { this.state.last_ename} ({ this.state.last_enumber }) <br/> <br/>
           
-          <form action="/returning-user-success" method="POST">
+          <form action="/returning-user-success" method="POST" class="register register-form">
             New Activity: 
             <TextInput
               name="details"
               id="details"
               onChange={this.onActivityChange}
               value={this.state.last_details}
-              
             />
             <br/><br/>
             HR:
@@ -76,7 +75,8 @@ class Mainform extends React.Component {
             </select><br/><br/>
             <input type="submit" name="submit"/>
           </form><br/><br/><br/>
-      </div> /* render div */
+      </div> 
+      
     );
   }
 }

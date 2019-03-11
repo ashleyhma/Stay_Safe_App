@@ -43,30 +43,27 @@ class Homepage extends React.Component {
     // console.log(this.props)
     return (
       <div className="container">
-        <div className="row">
-          <div className="col">
-        
-            </div>
-            </div>
-
-
             <form action="/" method="POST" id="login-form" onSubmit={this.alertLogin}>
-            <div className="row">
-              <div className="col-md-5">
-                Full Name: <br/>
+            <div className="row input">
+              <div className="col-md-5">  
+              
+                <h4>Full Name: </h4>
+                
                 <TextInput
                   name="name"
                   id="login-name"
                   onChange={this.onNameChange}
                   value={this.state.name}
                   placeholder="John Doe"
-                  class="form-control"
+                  class="input-group form-group"
                 />
+               
               <br/>
+            
             </div>
 
             <div className="col-md-5">
-              Phone Number:<br/>
+              <h4>Phone Number:</h4>
               <TextInput
                 name="number"
                 id="login-number"
@@ -78,8 +75,8 @@ class Homepage extends React.Component {
             </div>
             <br/>
             <div className="col">
-              <br/>
-              <input className="btn btn-primary" type="submit" name="Submit" id="submit-login-form"/>
+              <br/><h4></h4>
+              <input className="btn btn-secondary button" type="submit" name="Submit" id="submit-login-form"/>
             </div>
           </div>
 

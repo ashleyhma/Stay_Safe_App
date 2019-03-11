@@ -1,114 +1,72 @@
-<head>
-    <link rel="stylesheet" href="/static/css/main.css"/>
-</head>
-
 {% extends 'base.html' %}
+
 {% block content %}
-<style>
-.register-left{
-    text-align: center;
-    color: #fff;
-    margin-top: 4%;
-}
-
-.register-left input{
-    border: none;
-    border-radius: 1.5rem;
-    padding: 2%;
-    width: 60%;
-    background: #f8f9fa;
-    font-weight: bold;
-    color: #383d41;
-    margin-top: 10%;
-    margin-bottom: 3%;
-    cursor: pointer;
-}
-
-.register-right{
-    background: #f8f9fa;
-    border-top-left-radius: 10% 50%;
-    border-bottom-left-radius: 10% 50%;
-    padding-bottom: 129px;
-    padding-top: 130px;
-}
-
-.register-left img{
-    margin-top: 15%;
-    margin-bottom: 5%;
-    -webkit-animation: mover 2s infinite  alternate;
-    animation: mover 1s infinite  alternate;
-    margin-left: 13%;
-    width: 50%;
-}
-@-webkit-keyframes mover {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-20px); }
-}
-@keyframes mover {
-    0% { transform: translateY(0); }
-    100% { transform: translateY(-20px); }
-}
-
-.register .register-form{
-    padding: 10%;
-    margin-top: 10%;
-}
-.registerform {
-    width: 50%;
-    margin-left: 20%;
-}
-
-.title {
-    font-size: 90px;
-}
-
-</style>
-
-<div class="container-fluid register">
+<link rel="stylesheet" href="/static/css/register_form.css"/>
 
 
-    <div class="row">
+<div class="wrapper">
+    <div class="inner">
 
-        <div class="col-md-4 register-left">
-                <h1 class="title">Welcome</h1>
-                <img src="static/imgs/sms.png" alt=""/><br>
-                
-                <input type="submit" name="" value="Login"/><br/>
-        </div>
-
-        <div class="col-md-8 register-right">
         <form action="/new-user-success" method="POST" class="registerform">
+        <center>
+        <h3> Going Out? </h3>
+        <h4>Enter Your Trip Information</h4>
+        </center>
+        <label for="name">Full Name</label>
         <div class="form-row">
-            <div class="form-group col">
-                <label for="name">Full Name</label>
+            <div class="input-group form-group col">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"
+                    ><i class="fas fa-user"></i
+                  ></span>
+                </div>
+                
                 <input type="text" class="form-control" id="name" placeholder="Jane Doe" name="name">
             </div>
         </div>
- 
+         <label for="number">Phone Number</label>
         <div class="form-row">
-            <div class="form-group col">
-                <label for="number">Phone Number</label>
+            <div class="input-group form-group col">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                    <i class="fa fa-phone-square" aria-hidden="true"></i>
+                    </span>
+                </div>
                 <input type="text" class="form-control" id="number" placeholder="5103338888" name="number">
             </div>
         </div>
-
+        <label for="ename">Emergency Contact Name</label>
         <div class="form-row">
-            <div class="form-group col">
-                <label for="ename">Emergency Contact Name</label>
+            <div class="input-group form-group col">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"
+                    ><i class="fas fa-user"></i
+                  ></span>
+                </div>
                 <input type="text" class="form-control" id="ename" placeholder="John Doe" name="e_name">
             </div>
         </div>
 
+        <label for="enumber">Emergency Contact Number</label>
         <div class="form-row">
-            <div class="form-group col">
-                <label for="enumber">Emergency Contact Number</label>
+            <div class="input-group form-group col">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                    <i class="fa fa-phone-square" aria-hidden="true"></i>
+                    </span>
+                </div>
                 <input type="text" class="form-control" id="enumber" placeholder="4158189999" name="e_number">
             </div>
         </div>
-
+        <label for="details">Activity (Short Phrase)</label>
         <div class="form-row">
-            <div class="form-group col">
-                <label for="details">Activity (Short Phrase)</label>
+            <div class="input-group form-group col">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">
+                    <i class="fa fa-beer" aria-hidden="true"></i>
+                    </span>
+                </div>
+                
                 <input type="text" class="form-control" id="details" name="details" placeholder="walking to BART alone">
             </div>
         </div>
@@ -130,7 +88,8 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">Register</button>
+        <button type="submit" class="btn btn-secondary button">Register</button>
+        <a class="btn btn-secondary button" href="/" role="button">Back to Login</a>
         </form>
         </div>
     </div>

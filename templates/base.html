@@ -17,14 +17,34 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="/static/css/main.css"/>
+    <link rel="stylesheet" href="/static/css/index.css"/>
+
+    <!-- Font Awesome -->
+     <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.3.1/css/all.css"
+      integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+      crossorigin="anonymous"
+    />
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|Nanum+Gothic" rel="stylesheet">
   </head>
 
   <body>
+    
     <!-- Nav Bar -->
-    <div class="container-fluid" id="navbar">
+    {% set home_class %}
+      {% if request.script_root == '' %}
+        {{ 'home' }}
+      {% else %}
+        {{ None }}
+      {% endif %}
+    {% endset %}
+    <div class="container-fluid {{ home_class }}" id="navbar">
       <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12">
-          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <nav class="navbar navbar-expand-lg navbar-dark bg-light">
             <a class="navbar-brand" href="/">
               Stay Safe
             </a>
@@ -36,18 +56,18 @@
                 <li class="nav-item active">
                   <a class="nav-link nav"  href="/">Home <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">About Us</a>
+                <li class="nav-item active">
+                  <a class="nav-link nav" href="#">About Us</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item active">
                   {% if "user_id" in session %}
-                  <a class="nav-link" href="/default-form">Form</a>
+                  <a class="nav-link nav" href="/default-form">Form</a>
                   {% endif %}
                 </li>
               </ul> 
 
               <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
+                <li class="nav-item active">
                   {% if "user_id" in session %}
                   <a class="nav-link" href="/logout">Logout</a>
                   {% endif %}
@@ -61,12 +81,16 @@
     {% block content %} put your content here {% endblock %}
 
   <!-- Footer -->
-  <div id="wrap">
-    <div id="main" class="container clear-top">
-      <p>Your content here</p>
-    </div>
-  </div>
-<footer class="footer"></footer>
+<div class="footer">
+  <p>Follow Ashley Ma:
+    <a href="https://github.com/ashleyhma">
+      <img id="github" src="/static/imgs/github-mark.png">
+    </a>
+    <a href="https://www.linkedin.com/in/ashleyhma/">
+      <img id="linkedin" src="/static/imgs/linkedin.jpg">
+    </a>
+  </p>
+</div>
 
     
   <!-- Bootstrap -->

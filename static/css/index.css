@@ -1,0 +1,50 @@
+.navbar-wrapper {
+    position:relative;
+}
+.carousel {
+    top:0;
+}
+.carousel-inner {
+    width: 100%; 
+    overflow: hidden;
+    }
+.navbar {
+    position:absolute;
+    top:0;
+    z-index:10;
+    background: rgb(0, 0, 0); 
+    width:100%;
+}
+
+.home .row {
+    width: 100%;
+}
+
+.home .row nav {
+    color: white;
+    background-color: transparent !important;
+}
+
+.row.input {
+    margin-top: 100px;
+}
+
+
+.button {
+    border: none;
+    border-radius: 1.5rem;
+    padding: 2%;
+    width: 87%;
+    font-weight: bold;
+    margin-top: 5%;
+    cursor: pointer;
+}
+
+.register-button {
+    border: none;
+    border-radius: 1.5rem;
+    padding: 1%;
+    width: 42%;
+    font-weight: bold;
+    margin-top: 5%;
+}

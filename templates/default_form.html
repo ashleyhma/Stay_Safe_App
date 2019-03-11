@@ -1,37 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="container">
+<link rel="stylesheet" href="/static/css/default_form.css"/>
+
+<div class="wrapper">
 
     <div class="row">
-        <div class="col">
-            <div class="jumbotron jumbotron-fluid">
-                <div class="container">
-                    <h1 class="display-4">Fluid jumbotron</h1>
-                    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="col-sm-4">
-            <div class="card text-center">
-                <div class="card-header">
-                    Featured
-                </div>
+        <div class="col-sm-4 col-md-4 register-left">
+            
+            <div class="card text-center main-card">
                 <div class="card-body">
-                    <h5 class="card-title">Important</h5>
-                    <p class="card-text">Emergency Contacts
+                    <h5 class="card-title">Change Emergency Contacts</h5>
+                    <img src="static/imgs/sms.png" alt=""/><br>
+                    <p class="card-text">
                     <ul>
                         <li>Should have first and last name</li>
                         <li>Phone number should have no spaces or symbols</li>
+                    </ul>
                     </p>
 
                     <div>
                     <!-- EMERGENCY CONTACT CHANGE MODAL -->
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#change_econtact">Change Emergency Contact</button>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#change_econtact">Change Here</button>
 
                     <!-- EC CHANGE MODAL-->
                     <div class="modal fade right" id="change_econtact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -80,7 +70,7 @@
         </div>
     </div>
 
-    <div class="col-sm-8">
+    <div class="col-sm-8 col-md-8 register-right">
         <div id="homepage"></div>
 
     </div>
