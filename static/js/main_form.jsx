@@ -50,14 +50,14 @@ class Mainform extends React.Component {
     }
 
     return (
-      <div className="container-fluid">
+      <div>
         
         <h1> Please enter your information </h1>
         <h3>If you don't check in, we will alert your default emergency contact:</h3> 
           Emergency Contact: { this.state.last_ename} ({ this.state.last_enumber }) <br/> <br/>
           
           <form action="/returning-user-success" method="POST">
-            New Activity:
+            New Activity: 
             <TextInput
               name="details"
               id="details"

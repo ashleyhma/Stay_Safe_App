@@ -42,37 +42,51 @@ class Homepage extends React.Component {
   render() {
     // console.log(this.props)
     return (
-      <div> 
-        <h1>{this.props.title}</h1>
-        {console.log(this.props)}
+      <div className="container">
+        <div className="row">
+          <div className="col">
         
+            </div>
+            </div>
 
-        <h5> Enter your information here if you have registered before:</h5>
-          
-          <form action="/" method="POST" id="login-form" onSubmit={this.alertLogin}>
-            Enter Full Name: <br/>
-            <TextInput
-              name="name"
-              id="login-name"
-              onChange={this.onNameChange}
-              value={this.state.name}
-            />
+
+            <form action="/" method="POST" id="login-form" onSubmit={this.alertLogin}>
+            <div className="row">
+              <div className="col-md-5">
+                Full Name: <br/>
+                <TextInput
+                  name="name"
+                  id="login-name"
+                  onChange={this.onNameChange}
+                  value={this.state.name}
+                  placeholder="John Doe"
+                  class="form-control"
+                />
+              <br/>
+            </div>
+
+            <div className="col-md-5">
+              Phone Number:<br/>
+              <TextInput
+                name="number"
+                id="login-number"
+                onChange={this.onNumChange}
+                value={this.state.number}
+                placeholder="5101238888"
+                class="form-control"
+              />
+            </div>
             <br/>
-            Phone Number:<br/>
-            <TextInput
-              name="number"
-              id="login-number"
-              onChange={this.onNumChange}
-              value={this.state.number}
-            />
-            <br/>
-            
-            <input type="submit" name="Submit" id="submit-login-form"/>
-          </form>
+            <div className="col">
+              <br/>
+              <input className="btn btn-primary" type="submit" name="Submit" id="submit-login-form"/>
+            </div>
+          </div>
+
+            </form>
+
         
-
-        <p><a href="/register-form">Click here to register!</a></p>
-      </div>
+        </div> 
     );
   }
 }

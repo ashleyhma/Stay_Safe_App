@@ -29,46 +29,31 @@ class Success extends React.Component {
         number: results.number,
         e_name: results.e_name,
         e_number: results.e_number,
-        time: results.time,
+        time: moment(results.time, 'H:m').format('H:mm A'),
         details: results.details,
         okay_text: results.okay_text,
         check_text: results.check_text
       });
     });
-
-
-    
   }
-  // time: moment(results.time, 'H:m').format('H:mm')
-
-  // componentDidMount() {
-  //   $.get('/get-location-data', results => {
-  //     console.log("heyyy")
-  //     console.log(results)
-  //     this.setState({
-  //       address: results.address
-  //     });
-  //   });
-  // }
 
   render() {
     return(
 
-      <div className="container-fluid">
-      
-        <h1> Thank you for using Stay Safe! </h1>
+      <div>
+       
+          <h3>Make sure you entered the right information! This is what we have: </h3>
+          Your Number: { this.state.number } <br/>
+          Emergency Contact: { this.state.e_name } <br/>
+          Emergency Contact Number: { this.state.e_number } <br/>
 
-        <h3>Make sure you entered the right information! This is what we have: </h3>
-        Your Number: { this.state.number } <br/>
-        Emergency Contact: { this.state.e_name } <br/>
-        Emergency Contact Number: { this.state.e_number } <br/>
+          <h4>This will sent to you at { this.state.time }:</h4>
+          { this.state.okay_text } <br/>
 
-        <h4>This will sent to you at { this.state.time }:</h4>
-        { this.state.okay_text } <br/>
-
-        <h4> This will be sent to your emergency contact if you do not respond within 5 min after { this.state.time }:</h4>
-        { this.state.check_text }
-      
+          <h4> This will be sent to your emergency contact if you do not respond within 5 min after { this.state.time }:</h4>
+          
+          <p id="ec_txt"> </p> 
+        
       </div>
     );
   }

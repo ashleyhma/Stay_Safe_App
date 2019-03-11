@@ -181,10 +181,7 @@ class Location(db.Model):
     def __repr__(self):
 
         return f"<ID={self.location_id} user_id={self.user_id} lat={self.lat} long={self.lng} address={self.address}"
-
-
-
-
+ 
 
 ##########################################################################
 

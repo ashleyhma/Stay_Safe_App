@@ -272,7 +272,6 @@ def send_returning_user_form_data():
     details = user.activities[-1].details
 
     okay_text = write_okay_text(user_name) 
-    check_text = write_ec_text(user_name, e_name, details, number, address)
 
     form_data = {
         'user_name': user.name,
@@ -281,8 +280,7 @@ def send_returning_user_form_data():
         'e_number': user.e_contacts[-1].e_phones[-1].e_number,
         'time': user.activities[-1].time,
         'details': user.activities[-1].details,
-        'okay_text': okay_text,
-        'check_text': check_text
+        'okay_text': okay_text
     }
 
     return jsonify(form_data)
@@ -293,6 +291,20 @@ def get_gmaps_data():
     """Retrieves latitude and longitude from google maps website.
     
     Translates latitude and longitude into a street address and saves all three into database."""
+    user_id = session['user_id']
+    user = User.query.options(
+        db.joinedload('phones')
+    ).options(db.joinedload('e_contacts')
+    ).options(db.joinedload('activities')
+    ).options(db.joinedload('locations')
+    ).get(user_id)
+
+    user_name = user.name
+    phone = user.phones[-1].number
+    number = phone[:3] + '-' + phone[3:6] + '-' + phone[6:]
+    address = None
+    e_name = user.e_contacts[-1].e_name
+    details = user.activities[-1].details
 
     gmaps = googlemaps.Client(os.environ.get('GOOGLE_KEY'))
     user_id = session['user_id']
@@ -308,8 +320,11 @@ def get_gmaps_data():
 
     user.add_location(lat, lng, address)
 
+    check_text = write_ec_text(user_name, e_name, details, number, address)
+
     location = {
-        'address': address 
+        'address': address, 
+        'check_text':check_text
     }
 
     print('\n\n')

@@ -1,60 +1,141 @@
+<head>
+    <link rel="stylesheet" href="/static/css/main.css"/>
+</head>
+
 {% extends 'base.html' %}
 {% block content %}
-    <h1> Register Form (First Time User)</h1>
-    <h5> This will be registering you and starting your first check-up!</h5>
+<style>
+.register-left{
+    text-align: center;
+    color: #fff;
+    margin-top: 4%;
+}
 
-    <form action="/new-user-success" method="POST">
+.register-left input{
+    border: none;
+    border-radius: 1.5rem;
+    padding: 2%;
+    width: 60%;
+    background: #f8f9fa;
+    font-weight: bold;
+    color: #383d41;
+    margin-top: 10%;
+    margin-bottom: 3%;
+    cursor: pointer;
+}
 
-            Enter Full Name: 
-            <br>
-            <input type="text" name="name">
-            <br>
+.register-right{
+    background: #f8f9fa;
+    border-top-left-radius: 10% 50%;
+    border-bottom-left-radius: 10% 50%;
+    padding-bottom: 129px;
+    padding-top: 130px;
+}
 
-        
-            Phone Number:
-            <br>
-            <input type="text" name="number">
-            <br>
+.register-left img{
+    margin-top: 15%;
+    margin-bottom: 5%;
+    -webkit-animation: mover 2s infinite  alternate;
+    animation: mover 1s infinite  alternate;
+    margin-left: 13%;
+    width: 50%;
+}
+@-webkit-keyframes mover {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-20px); }
+}
+@keyframes mover {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-20px); }
+}
 
-            
-        
-            Emergency Contact Name:
-            <br>
-            <input type="text" name="e_name">
-            <br>
+.register .register-form{
+    padding: 10%;
+    margin-top: 10%;
+}
+.registerform {
+    width: 50%;
+    margin-left: 20%;
+}
 
-        
-            Emergency Contact Number:
-            <br>
-            <input type="text" name="e_number">
-            <br>
+.title {
+    font-size: 90px;
+}
 
-        
-            Activity:
-            <br>
-            <input type="text" name="details">
-            <br>
+</style>
 
-        
-            Time to be checked on (Military Time):
-            <br>
-            HR:
-            <select name="hours">
-                {% for i in range(24) %}
-                    <option value=" {{ i }} "> {{ i }}</option>
-                {% endfor %}
-            </select>
-            MIN:
-            <select name ="minutes">
-                {% for i in range(60) %}
-                    <option value=" {{ i }}"> {{ i }}</option>
-                {% endfor %}
-            </select>
-            <br>
+<div class="container-fluid register">
 
-        <input type="submit" name="submit">
-    </form>
-</center>
-</p>
+
+    <div class="row">
+
+        <div class="col-md-4 register-left">
+                <h1 class="title">Welcome</h1>
+                <img src="static/imgs/sms.png" alt=""/><br>
+                
+                <input type="submit" name="" value="Login"/><br/>
+        </div>
+
+        <div class="col-md-8 register-right">
+        <form action="/new-user-success" method="POST" class="registerform">
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="name">Full Name</label>
+                <input type="text" class="form-control" id="name" placeholder="Jane Doe" name="name">
+            </div>
+        </div>
+ 
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="number">Phone Number</label>
+                <input type="text" class="form-control" id="number" placeholder="5103338888" name="number">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="ename">Emergency Contact Name</label>
+                <input type="text" class="form-control" id="ename" placeholder="John Doe" name="e_name">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="enumber">Emergency Contact Number</label>
+                <input type="text" class="form-control" id="enumber" placeholder="4158189999" name="e_number">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col">
+                <label for="details">Activity (Short Phrase)</label>
+                <input type="text" class="form-control" id="details" name="details" placeholder="walking to BART alone">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group col">
+                HR:
+                <select name="hours">
+                    {% for i in range(24) %}
+                        <option value=" {{ i }} "> {{ i }}</option>
+                    {% endfor %}
+                </select>
+                MIN:
+                <select name ="minutes">
+                    {% for i in range(60) %}
+                        <option value=" {{ i }}"> {{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
+
 
