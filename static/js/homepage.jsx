@@ -55,7 +55,7 @@ class Homepage extends React.Component {
                   onChange={this.onNameChange}
                   value={this.state.name}
                   placeholder="John Doe"
-                  class="input-group form-group"
+                  class="form-control"
                 />
                
               <br/>

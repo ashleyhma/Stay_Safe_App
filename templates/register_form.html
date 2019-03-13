@@ -5,14 +5,16 @@
 
 
 <div class="wrapper">
-    <div class="inner">
-
+    <div class="inner d-flex justify-content-center align-items-center">
+    
         <form action="/new-user-success" method="POST" class="registerform">
         <center>
-        <h3> Going Out? </h3>
+        <h4>Going Out? </h4>
         <h4>Enter Your Trip Information</h4>
         </center>
-        <label for="name">Full Name</label>
+        
+        <label for="name input-sm">Full Name</label>
+
         <div class="form-row">
             <div class="input-group form-group col">
                 <div class="input-group-prepend">
@@ -21,18 +23,19 @@
                   ></span>
                 </div>
                 
-                <input type="text" class="form-control" id="name" placeholder="Jane Doe" name="name">
+                <input type="text" class="form-control input-sm" id="name" placeholder="Jane Doe" name="name">
             </div>
         </div>
-         <label for="number">Phone Number</label>
-        <div class="form-row">
+            <label for="number input-sm">Phone Number</label>
+         <div class="form-row">
             <div class="input-group form-group col">
+            
                 <div class="input-group-prepend">
                     <span class="input-group-text">
                     <i class="fa fa-phone-square" aria-hidden="true"></i>
                     </span>
                 </div>
-                <input type="text" class="form-control" id="number" placeholder="5103338888" name="number">
+                <input type="text" class="form-control input-sm" id="number" placeholder="5103338888" name="number">
             </div>
         </div>
         <label for="ename">Emergency Contact Name</label>
@@ -73,13 +76,13 @@
 
         <div class="form-row">
             <div class="form-group col">
-                HR:
+                Text Sent (Military) Time: 
                 <select name="hours">
                     {% for i in range(24) %}
                         <option value=" {{ i }} "> {{ i }}</option>
                     {% endfor %}
                 </select>
-                MIN:
+                
                 <select name ="minutes">
                     {% for i in range(60) %}
                         <option value=" {{ i }}"> {{ i }}</option>
@@ -89,7 +92,6 @@
         </div>
 
         <button type="submit" class="btn btn-secondary button">Register</button>
-        <a class="btn btn-secondary button" href="/" role="button">Back to Login</a>
         </form>
         </div>
     </div>

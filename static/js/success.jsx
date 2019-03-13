@@ -40,20 +40,15 @@ class Success extends React.Component {
   render() {
     return(
 
-      <div>
-       
-          <h3>Make sure you entered the right information! This is what we have: </h3>
-          Your Number: { this.state.number } <br/>
-          Emergency Contact: { this.state.e_name } <br/>
-          Emergency Contact Number: { this.state.e_number } <br/>
-
-          <h4>This will sent to you at { this.state.time }:</h4>
+      <div className="info-txt">
+        <center>
+          <h4>This will sent to your number ({this.state.number}) at { this.state.time }:</h4>
           { this.state.okay_text } <br/>
-
-          <h4> This will be sent to your emergency contact if you do not respond within 5 min after { this.state.time }:</h4>
+          <br/>
+          <h4> This will be sent to your emergency contact ({this.state.e_name}) if you do not respond within 5 min after { this.state.time }:</h4>
           
           <p id="ec_txt"> </p> 
-        
+          </center>
       </div>
     );
   }

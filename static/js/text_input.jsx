@@ -9,6 +9,7 @@ class TextInput extends React.Component {
         value={this.props.value}
         placeholder={this.props.placeholder}
         class={this.props.class}
+        
       />
     );
   }

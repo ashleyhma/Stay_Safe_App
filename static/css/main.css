@@ -5,17 +5,15 @@
     width: 600px;
 }
 
-/* .footer {
-    position: relative;
-    margin-top: -150px; /* negative value of footer height */
-    /* height: 150px;
-    clear:both;
-    padding-top:20px;
-  } 
-   */
 
 .navbar-nav.mr-auto {
-    font-weight: bold;
+    font-weight: bolder;
+    font-family: 'Heebo', sans-serif;
+}
+
+#navbar {
+    font-weight: bolder;
+    font-family: 'Heebo', sans-serif;
 }
 
 .footer {
@@ -27,6 +25,7 @@
     color: white;
     text-align: center;
     padding-top: 11px;
+    font-family: 'Montserrat', sans-serif;
   }
 
 #github {
@@ -38,3 +37,24 @@
     width: 1.9%;
 }
 
+.form-button {
+    border: none;
+    border-radius: 1.5rem;
+    padding: 2%;
+    width: 87%;
+    font-weight: bold;
+    margin-top: 5%;
+    cursor: pointer;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    
+    font-family: 'Nanum Gothic', sans-serif;
+    font-weight: bolder;
+}
+
+body {
+    font-family: 'Nanum Gothic', sans-serif;
+}
+
+/* font-family: 'Montserrat', sans-serif; */

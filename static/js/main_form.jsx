@@ -50,32 +50,35 @@ class Mainform extends React.Component {
     }
 
     return (
-      <div className="inner">
-        
-        <h1> Please enter your information </h1>
-        <h3>If you don't check in, we will alert your default emergency contact:</h3> 
-          Emergency Contact: { this.state.last_ename} ({ this.state.last_enumber }) <br/> <br/>
+      <div className="main">
+       
+          <center>
+          <h3> Going Out? Enter Your Trip Information </h3>
+          </center>
+          <form action="/returning-user-success" method="POST" class="main_form">
+            <b>Emergency Contact Name</b> <br/>{ this.state.last_ename } 
+            <br/> <br/>
+            <b>Emergency Contact Number</b><br/> { this.state.last_enumber } <br/><br/>
+              
+              <b>Activity</b><br/>
+              <TextInput
+                name="details"
+                id="details"
+                onChange={this.onActivityChange}
+                value={this.state.last_details}
+                class="form-control"
+              /> <br/>
+              <b>Text Sent (Military) Time: </b> <br/>
+              <select name="hours" value={this.state.last_hour} onChange={this.onHourChange}>
+                {hours}
+              </select>
+              <select name="minutes" value={this.state.last_mins} onChange={this.onMinChange}>
+                {mins}
+              </select><br/><br/>
+              <input type="submit" name="submit" class="btn btn-secondary button-main"/>
+            </form>
           
-          <form action="/returning-user-success" method="POST" class="register register-form">
-            New Activity: 
-            <TextInput
-              name="details"
-              id="details"
-              onChange={this.onActivityChange}
-              value={this.state.last_details}
-            />
-            <br/><br/>
-            HR:
-            <select name="hours" value={this.state.last_hour} onChange={this.onHourChange}>
-              {hours}
-            </select>
-            MIN:
-            <select name="minutes" value={this.state.last_mins} onChange={this.onMinChange}>
-              {mins}
-            </select><br/><br/>
-            <input type="submit" name="submit"/>
-          </form><br/><br/><br/>
-      </div> 
+        </div> 
       
     );
   }

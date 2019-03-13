@@ -10,18 +10,18 @@
             
             <div class="card text-center main-card">
                 <div class="card-body">
-                    <h5 class="card-title">Change Emergency Contacts</h5>
+                    <h5 class="card-title">Change Emergency Contact</h5>
                     <img src="static/imgs/sms.png" alt=""/><br>
                     <p class="card-text">
                     <ul>
-                        <li>Should have first and last name</li>
+                        <li>Should have first & last name</li>
                         <li>Phone number should have no spaces or symbols</li>
                     </ul>
                     </p>
 
                     <div>
                     <!-- EMERGENCY CONTACT CHANGE MODAL -->
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#change_econtact">Change Here</button>
+                    <button type="button" class="btn btn-secondary button" data-toggle="modal" data-target="#change_econtact">Change Here</button>
 
                     <!-- EC CHANGE MODAL-->
                     <div class="modal fade right" id="change_econtact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -40,22 +40,22 @@
                                     <!-- EMERGENCY NAME -->
                                     <div class="form-group">
                                         <label for="ename" class="col-form-label">Emergency Contact Name:</label>
-                                        <input type="text" class="form-control" id="ename" name="ename">
+                                        <input type="text" class="form-control text-box" id="ename" name="ename">
                                     </div>
 
                                     <!-- EMERGENCY NUMBER -->
                                     <div class="form-group">
                                         <label for="enum" class="col-form-label">Emergency Number:</label>
-                                        <input type="text" class="form-control" id="enum" name="enum">
+                                        <input type="text" class="form-control text-box" id="enum" name="enum">
                                     </div>
                                 </form>
                     
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                <button type="button" class="btn btn-secondary button" data-dismiss="modal">
                                     Close
                                 </button>
-                                <button type="button submit" class="btn btn-success" id="submit">
+                                <button type="button submit" class="btn btn-success button" id="submit">
                                     Submit
                                 </button>
                             </div>
@@ -64,8 +64,6 @@
                 </div>
             </div>
         </div>
-                
-        
         
         </div>
     </div>

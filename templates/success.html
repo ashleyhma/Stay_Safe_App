@@ -1,17 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
+<link rel="stylesheet" href="/static/css/success.css"/>
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col">
-            <div class="jumbotron jumbotron-fluid">
-                <div class="container">
-                    <h1 class="display-4">Thank you for using Stay Safe! </h1>
-                    <p class="lead">This is a modified jumbotron that occupies the entire horizontal space of its parent.</p>
-                </div>
-            </div>
-        </div>
+        <img src="/static/imgs/thank_you.png" id="top_pic">
     </div>
 
 
@@ -20,12 +14,9 @@
             <div id="success" data-is-new-user="{{ is_new_user }}"></div>
             <div id="ec_text"> </div>
         </div>
-            
-        <div class="col">
+        <div class="col gmaps">
             <!-- GOOGLE MAPS -->
-            <h5> We will send this location to your emergency contact:</h5>
-            <br>
-            <h6> Please allow the browser to request your location.</h6>
+            <h5><center> Please allow the browser to retrieve your location.</h5></center>
             <div id="map"></div>   
         </div> 
     </div> 
