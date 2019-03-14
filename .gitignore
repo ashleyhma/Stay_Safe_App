@@ -6,3 +6,4 @@ ngrok
 linux_ngrok
 .DS_Store
 static/.DS_Store
+node_modules/
