@@ -4,12 +4,15 @@
 Stay Safe is a messaging system that texts a user's emergency contact if the user does not reply to the site's sms text message within 5 minutes of the sent time.
 
 **First Time Use**
+
 <img src="static/imgs/register.gif">
 
 **Login**
+
 <img src="static/imgs/login.gif">
 
 **Change Emergency Contact**
+
 <img src="static/imgs/change-ec.gif">
 
 ## Navigation
